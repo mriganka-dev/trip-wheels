@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "The backend manages user authentication, vehicle listings, availability, booking requests, document verification, notifications, and admin operations. It provides secure REST APIs and database integration to ensure reliable bookings and efficient communication between travelers and vehicle rental providers. Online payments are not processed; payments are made directly to the vehicle owners.",
+  "license": "ISC",
+  "author": "Mriganka Ghosh",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "mongoose": "^9.11.4"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
