@@ -49,4 +49,3 @@ export const issueListQuerySchema = z.object({
   type: z.enum(Object.values(ISSUE_TYPES)).optional(),
   severity: z.enum(Object.values(ISSUE_SEVERITY)).optional(),
 });
-

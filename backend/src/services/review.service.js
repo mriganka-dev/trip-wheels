@@ -12,6 +12,7 @@ import { Vehicle } from "../models/vehicle.model.js";
 import { notify } from "../notifications/notification.service.js";
 import { ApiError } from "../utils/ApiError.js";
 import { formatPaginatedResponse, getPagination } from "../utils/pagination.js";
+import { logAudit } from "./audit.service.js";
 
 export const recalculateRatingAggregates = async (review) => {
   // 1. Recalculate vehicle rating if vehicle is attached
@@ -232,6 +233,14 @@ export const hideReview = async (adminUser, reviewId, isHidden) => {
 
   review.isHidden = Boolean(isHidden);
   await review.save();
+
+  await logAudit({
+    actorId: adminUser._id,
+    action: "hide_review",
+    targetType: "Review",
+    targetId: review._id,
+    after: { isHidden: review.isHidden },
+  });
 
   // Atomically update averages (so hidden reviews are excluded from averages)
   await recalculateRatingAggregates(review);

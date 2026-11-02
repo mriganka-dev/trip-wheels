@@ -22,6 +22,11 @@ import {
 } from "../validators/issue.validator.js";
 import { hideReviewSchema } from "../validators/review.validator.js";
 import {
+  analyticsQuerySchema,
+  auditLogQuerySchema,
+  updateSettingsSchema,
+} from "../validators/setting.validator.js";
+import {
   createDestinationSchema,
   updateDestinationSchema,
 } from "../validators/destination.validator.js";
@@ -151,5 +156,48 @@ router.patch(
   validate({ body: hideReviewSchema }),
   reviewController.hideReview
 );
+
+// Admin Dashboard
+router.get("/dashboard", adminController.getDashboard);
+
+// Admin Users Management
+router.get("/users", adminController.getAdminUsers);
+router.get("/users/:id", adminController.getAdminUserDetail);
+
+// Admin Settings
+router.get("/settings", adminController.getSettings);
+router.patch(
+  "/settings",
+  validate({ body: updateSettingsSchema }),
+  adminController.updateSettings
+);
+
+// Admin Audit Logs
+router.get(
+  "/audit-logs",
+  validate({ query: auditLogQuerySchema }),
+  adminController.getAuditLogsList
+);
+
+// Admin Analytics
+router.get(
+  "/analytics/overview",
+  validate({ query: analyticsQuerySchema }),
+  adminController.getAnalyticsOverview
+);
+router.get("/analytics/destinations", adminController.getAnalyticsDestinations);
+
+// Admin Watchlists & Flags
+router.get(
+  "/flags/individual-misclassification",
+  adminController.getIndividualMisclassification
+);
+router.get(
+  "/watchlists/insurance-expiry",
+  adminController.getInsuranceExpiryWatchlist
+);
+
+// Admin CSV Export
+router.get("/export/:resource", adminController.exportResource);
 
 export default router;

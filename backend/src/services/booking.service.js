@@ -21,6 +21,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { generateBookingCode } from "../utils/counter.js";
 import { getHoursDifference } from "../utils/dates.js";
 import { formatPaginatedResponse, getPagination } from "../utils/pagination.js";
+import { logAudit } from "./audit.service.js";
 import { serializeBooking, serializeBookings } from "./booking.serializer.js";
 import { transitionBookingStatus } from "./booking.stateMachine.js";
 
@@ -614,6 +615,14 @@ export const finalizePickupPoint = async (publisher, bookingId, data) => {
   }
 
   await booking.save();
+
+  await logAudit({
+    actorId: adminUser._id,
+    action: "override_booking_status",
+    targetType: "Booking",
+    targetId: booking._id,
+    after: { status: targetStatus, note },
+  });
 
   const populated = await Booking.findById(booking._id)
     .populate("customer", "fullName phone reliability email")

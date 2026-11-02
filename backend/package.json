@@ -10,7 +10,9 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "seed:admin": "node scripts/seedAdmin.js",
-    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js && node tests/trust.test.js"
+    "seed:destinations": "node scripts/seedDestinations.js",
+    "seed:demo": "node scripts/seedDemo.js",
+    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js && node tests/trust.test.js && node tests/admin.test.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

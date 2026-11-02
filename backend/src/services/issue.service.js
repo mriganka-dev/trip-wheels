@@ -20,6 +20,7 @@ import { notify, notifyAdmins } from "../notifications/notification.service.js";
 import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { formatPaginatedResponse, getPagination } from "../utils/pagination.js";
+import { logAudit } from "./audit.service.js";
 import {
   recomputeCustomerReliability,
   recomputePublisherReliability,
@@ -299,6 +300,14 @@ export const resolveAdminIssue = async (adminUser, issueId, data) => {
   });
 
   await issue.save();
+
+  await logAudit({
+    actorId: adminUser._id,
+    action: "resolve_issue",
+    targetType: "Issue",
+    targetId: issue._id,
+    after: { outcome, adminNote: data.adminNote, status: issue.status },
+  });
 
   // If issue was upheld, apply penalties and optional suspensions
   if (isUpheld) {

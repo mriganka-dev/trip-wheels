@@ -8,6 +8,7 @@ import {
   requestRemindersJob,
   vehicleConfirmationRemindersJob,
 } from "./booking.jobs.js";
+import { insuranceExpiryJob, staleCleanupJob } from "./admin.jobs.js";
 import { recomputeAllScoresJob } from "../services/reliability.service.js";
 
 const scheduledTasks = [];
@@ -95,6 +96,28 @@ export const startJobs = () => {
         await recomputeAllScoresJob();
       } catch (err) {
         console.error("Error in recomputeAllScoresJob:", err);
+      }
+    })
+  );
+
+  // Daily job: insurance expiry warning and auto-pausing (at 01:00 AM)
+  scheduledTasks.push(
+    cron.schedule("0 1 * * *", async () => {
+      try {
+        await insuranceExpiryJob();
+      } catch (err) {
+        console.error("Error in insuranceExpiryJob:", err);
+      }
+    })
+  );
+
+  // Daily job: stale temp file and expired OTP cleanup (at 03:00 AM)
+  scheduledTasks.push(
+    cron.schedule("0 3 * * *", async () => {
+      try {
+        await staleCleanupJob();
+      } catch (err) {
+        console.error("Error in staleCleanupJob:", err);
       }
     })
   );
