@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -119,4 +120,49 @@ export const updateNotificationPreferences = async (
 
   await user.save();
   return await User.findById(userId).select("-password -refreshToken");
+};
+
+export const anonymizeUser = async (userId, actorId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (mongoose.models.Booking) {
+    const activeBooking = await mongoose.models.Booking.findOne({
+      $or: [{ customer: userId }, { publisher: userId }],
+      status: { $in: ["requested", "confirmed", "ongoing"] },
+    });
+    if (activeBooking) {
+      throw new ApiError(
+        400,
+        "Cannot anonymize account while there are active or ongoing bookings"
+      );
+    }
+  }
+
+  const anonymizedSuffix = user._id.toString().slice(-8);
+  user.fullName = "Anonymous User";
+  user.email = `deleted_${anonymizedSuffix}@deleted.local`;
+  user.phone = `910000${anonymizedSuffix}`;
+  user.password = crypto.randomUUID();
+  user.refreshToken = null;
+  user.accountStatus = "suspended";
+  user.isEmailVerified = false;
+  user.avatar = { url: "", publicId: "" };
+
+  await user.save();
+
+  if (mongoose.models.PublisherProfile) {
+    await mongoose.models.PublisherProfile.findOneAndUpdate(
+      { user: userId },
+      { businessName: "Deleted Business", verificationStatus: "suspended" }
+    );
+  }
+
+  return {
+    anonymized: true,
+    message:
+      "User personal data has been anonymized. Historical booking records remain for auditing. KYC documents are retained according to statutory requirements.",
+  };
 };

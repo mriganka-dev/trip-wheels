@@ -168,4 +168,3 @@ if (process.argv[1]?.endsWith("seedDestinations.js")) {
     process.exit(1);
   });
 }
-

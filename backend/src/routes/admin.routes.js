@@ -87,6 +87,8 @@ router.patch(
 
 router.patch("/users/:userId/unsuspend", adminController.unsuspendUser);
 
+router.patch("/users/:userId/anonymize", adminController.anonymizeUser);
+
 // Destination Management
 router.get("/destinations", destinationController.getAllDestinations);
 

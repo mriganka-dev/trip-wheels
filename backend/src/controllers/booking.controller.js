@@ -3,7 +3,12 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createBooking = asyncHandler(async (req, res) => {
-  const booking = await bookingService.createBookingRequest(req.user, req.body);
+  const idempotencyKey = req.headers["idempotency-key"];
+  const booking = await bookingService.createBookingRequest(
+    req.user,
+    req.body,
+    { idempotencyKey }
+  );
   res
     .status(201)
     .json(

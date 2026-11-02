@@ -71,6 +71,12 @@ const bookingSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    idempotencyKey: {
+      type: String,
+      trim: true,
+      sparse: true,
+      index: true,
+    },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

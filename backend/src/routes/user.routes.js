@@ -39,4 +39,6 @@ router.patch(
   userController.updateNotificationPreferences
 );
 
+router.post("/anonymize", userController.anonymizeMe);
+
 export default router;

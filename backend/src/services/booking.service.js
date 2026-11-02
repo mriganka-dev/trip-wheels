@@ -25,7 +25,7 @@ import { logAudit } from "./audit.service.js";
 import { serializeBooking, serializeBookings } from "./booking.serializer.js";
 import { transitionBookingStatus } from "./booking.stateMachine.js";
 
-export const createBookingRequest = async (customer, data) => {
+export const createBookingRequest = async (customer, data, options = {}) => {
   const customerId = customer._id;
 
   if (customer.role !== ROLES.CUSTOMER) {
@@ -37,6 +37,21 @@ export const createBookingRequest = async (customer, data) => {
       403,
       "Email must be verified to create booking requests"
     );
+  }
+
+  // Idempotency check if header provided
+  if (options.idempotencyKey) {
+    const existing = await Booking.findOne({
+      customer: customerId,
+      idempotencyKey: options.idempotencyKey,
+    })
+      .populate("customer", "fullName phone reliability email")
+      .populate("publisher", "fullName phone email")
+      .populate("vehicle", "brand model type pricing pickup");
+
+    if (existing) {
+      return serializeBooking(existing, customer);
+    }
   }
 
   const startAt = new Date(data.startAt);
@@ -148,6 +163,7 @@ export const createBookingRequest = async (customer, data) => {
 
   const booking = await Booking.create({
     bookingCode,
+    idempotencyKey: options.idempotencyKey || null,
     customer: customerId,
     publisher: vehicle.publisher,
     vehicle: vehicle._id,

@@ -1,0 +1,50 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trip_wheels_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - MONGODB_URI=mongodb://mongo:27017/trip_wheels
+      - DB_NAME=trip_wheels
+      - CORS_ORIGIN=http://localhost:3000
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET:-replace_with_a_very_long_secure_secret_at_least_32_chars}
+      - ACCESS_TOKEN_EXPIRY=15m
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET:-replace_with_another_very_long_secure_secret_at_least_32_chars}
+      - REFRESH_TOKEN_EXPIRY=7d
+      - JOBS_ENABLED=true
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - trip_wheels_net
+
+  mongo:
+    image: mongo:7.0
+    container_name: trip_wheels_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - trip_wheels_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongo_data:
+
+networks:
+  trip_wheels_net:
+    driver: bridge
+

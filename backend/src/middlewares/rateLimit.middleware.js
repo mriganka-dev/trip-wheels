@@ -36,3 +36,15 @@ export const bookingCreateLimiter = createLimiter({
   max: 20,
   message: "Too many booking requests created, please try again later",
 });
+
+export const uploadLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: "Too many upload attempts, please try again later",
+});
+
+export const issueCreateLimiter = createLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: "Too many issue reports created, please try again later",
+});

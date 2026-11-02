@@ -12,7 +12,9 @@
     "seed:admin": "node scripts/seedAdmin.js",
     "seed:destinations": "node scripts/seedDestinations.js",
     "seed:demo": "node scripts/seedDemo.js",
-    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js && node tests/trust.test.js && node tests/admin.test.js"
+    "sync:indexes": "node scripts/syncIndexes.js",
+    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js && node tests/trust.test.js && node tests/admin.test.js && node tests/hardening.test.js",
+    "test:ci": "npm test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

@@ -2,6 +2,7 @@ import * as adminService from "../services/admin.service.js";
 import { getAuditLogs, logAudit } from "../services/audit.service.js";
 import * as configService from "../services/config.service.js";
 import * as publisherService from "../services/publisher.service.js";
+import * as userService from "../services/user.service.js";
 import * as vehicleService from "../services/vehicle.service.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -381,4 +382,27 @@ export const exportResource = asyncHandler(async (req, res) => {
     `attachment; filename="${req.params.resource}-${Date.now()}.csv"`
   );
   res.status(200).send(csvContent);
+});
+
+export const anonymizeUser = asyncHandler(async (req, res) => {
+  const result = await userService.anonymizeUser(
+    req.params.userId,
+    req.user._id
+  );
+
+  await logAudit({
+    actorId: req.user._id,
+    action: "anonymize_user",
+    targetType: "User",
+    targetId: req.params.userId,
+    after: { accountStatus: "suspended", anonymized: true },
+    ip: req.ip,
+    userAgent: req.headers["user-agent"],
+  });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, result, "User anonymized successfully by admin")
+    );
 });

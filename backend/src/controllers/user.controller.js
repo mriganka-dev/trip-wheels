@@ -47,3 +47,10 @@ export const updateNotificationPreferences = asyncHandler(async (req, res) => {
       )
     );
 });
+
+export const anonymizeMe = asyncHandler(async (req, res) => {
+  const result = await userService.anonymizeUser(req.user._id, req.user._id);
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "Account anonymized successfully"));
+});

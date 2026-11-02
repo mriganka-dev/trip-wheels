@@ -93,4 +93,3 @@ export const Setting =
   mongoose.models.Setting || mongoose.model("Setting", settingSchema);
 
 export default Setting;
-

@@ -55,4 +55,3 @@ export const updateSettings = async (updates) => {
   invalidateConfigCache();
   return getSettings();
 };
-

@@ -7,13 +7,17 @@ import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { notFound } from "./middlewares/notFound.middleware.js";
 import { generalLimiter } from "./middlewares/rateLimit.middleware.js";
+import { requestId } from "./middlewares/requestId.middleware.js";
 import { sanitizeNoSql } from "./middlewares/sanitize.middleware.js";
 import apiRouter from "./routes/index.js";
 import { ApiError } from "./utils/ApiError.js";
 
 const app = express();
 
-app.use(helmet());
+app.set("trust proxy", 1);
+
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(requestId);
 
 const allowedOrigins = env.CORS_ORIGIN.split(",").map((origin) =>
   origin.trim()

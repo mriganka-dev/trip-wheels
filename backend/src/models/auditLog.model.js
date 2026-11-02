@@ -54,4 +54,3 @@ export const AuditLog =
   mongoose.models.AuditLog || mongoose.model("AuditLog", auditLogSchema);
 
 export default AuditLog;
-

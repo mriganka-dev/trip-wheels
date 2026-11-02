@@ -37,6 +37,10 @@ export const errorHandler = (err, req, res, next) => {
     success: false,
   };
 
+  if (req.id) {
+    response.requestId = req.id;
+  }
+
   if (env.NODE_ENV !== "production" && error.stack) {
     response.stack = error.stack;
   }
