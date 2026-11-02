@@ -80,4 +80,3 @@ export const sendOtpEmail = async (email, otp, purpose) => {
     html,
   });
 };
-

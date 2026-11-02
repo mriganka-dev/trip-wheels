@@ -24,4 +24,3 @@ export const updateNotificationPreferencesSchema = z.object({
   push: z.boolean().optional(),
   inApp: z.boolean().optional(),
 });
-

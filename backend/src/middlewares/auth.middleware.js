@@ -1,6 +1,11 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
-import { ACCOUNT_STATUS } from "../constants.js";
+import {
+  ACCOUNT_STATUS,
+  PUBLISHER_ROLES,
+  VERIFICATION_STATUS,
+} from "../constants.js";
+import { PublisherProfile } from "../models/publisherProfile.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -79,3 +84,34 @@ export const requireEmailVerified = (req, res, next) => {
 
   next();
 };
+
+export const requireApprovedPublisher = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    throw new ApiError(401, "Authentication required");
+  }
+
+  if (!PUBLISHER_ROLES.includes(req.user.role)) {
+    throw new ApiError(
+      403,
+      "Access restricted to agents and individual vehicle publishers"
+    );
+  }
+
+  if (req.user.accountStatus !== ACCOUNT_STATUS.ACTIVE) {
+    throw new ApiError(
+      403,
+      `Your account has been suspended. Reason: ${req.user.suspendedReason || "Terms violation"}`
+    );
+  }
+
+  const profile = await PublisherProfile.findOne({ user: req.user._id });
+  if (!profile || profile.verificationStatus !== VERIFICATION_STATUS.APPROVED) {
+    throw new ApiError(
+      403,
+      "Approved publisher profile required to perform this action"
+    );
+  }
+
+  req.publisherProfile = profile;
+  next();
+});

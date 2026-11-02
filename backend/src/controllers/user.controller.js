@@ -47,4 +47,3 @@ export const updateNotificationPreferences = asyncHandler(async (req, res) => {
       )
     );
 });
-
