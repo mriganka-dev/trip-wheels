@@ -121,6 +121,14 @@ const userSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
+      ratingAvg: {
+        type: Number,
+        default: 0,
+      },
+      ratingCount: {
+        type: Number,
+        default: 0,
+      },
     },
   },
   {

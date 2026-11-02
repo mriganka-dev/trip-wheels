@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ROLES } from "../constants.js";
 import * as publisherController from "../controllers/publisher.controller.js";
+import * as reviewController from "../controllers/review.controller.js";
 import {
   authorizeRoles,
   requireActiveAccount,
@@ -15,8 +16,16 @@ import {
   updatePublisherProfileSchema,
   uploadDocumentSchema,
 } from "../validators/publisher.validator.js";
+import { reviewListQuerySchema } from "../validators/review.validator.js";
 
 const router = Router();
+
+// Public publisher reviews endpoint
+router.get(
+  "/:id/reviews",
+  validate({ query: reviewListQuerySchema }),
+  reviewController.getPublisherReviews
+);
 
 router.use(
   verifyJWT,

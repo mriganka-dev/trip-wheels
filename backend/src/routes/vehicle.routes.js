@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ROLES } from "../constants.js";
+import * as reviewController from "../controllers/review.controller.js";
 import * as vehicleController from "../controllers/vehicle.controller.js";
 import {
   authorizeRoles,
@@ -20,6 +21,7 @@ import {
   unavailabilitySchema,
   updateVehicleSchema,
 } from "../validators/vehicle.validator.js";
+import { reviewListQuerySchema } from "../validators/review.validator.js";
 
 const router = Router();
 
@@ -155,6 +157,12 @@ router.delete(
   requireActiveAccount,
   authorizeRoles(ROLES.AGENT, ROLES.INDIVIDUAL),
   vehicleController.removeUnavailability
+);
+
+router.get(
+  "/:id/reviews",
+  validate({ query: reviewListQuerySchema }),
+  reviewController.getVehicleReviews
 );
 
 export default router;

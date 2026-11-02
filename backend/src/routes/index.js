@@ -4,6 +4,7 @@ import adminRoutes from "./admin.routes.js";
 import authRoutes from "./auth.routes.js";
 import bookingRoutes from "./booking.routes.js";
 import destinationRoutes from "./destination.routes.js";
+import issueRoutes from "./issue.routes.js";
 import notificationRoutes from "./notification.routes.js";
 import publisherRoutes from "./publisher.routes.js";
 import userRoutes from "./user.routes.js";
@@ -44,6 +45,7 @@ router.use("/publishers", publisherRoutes);
 router.use("/destinations", destinationRoutes);
 router.use("/vehicles", vehicleRoutes);
 router.use("/bookings", bookingRoutes);
+router.use("/issues", issueRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/admin", adminRoutes);
 

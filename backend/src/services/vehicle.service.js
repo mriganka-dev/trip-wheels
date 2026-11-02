@@ -825,10 +825,18 @@ export const searchVehicles = async (searchParams) => {
     available.push(v);
   }
 
-  if (searchParams.sort === "reliability") {
+  if (
+    !searchParams.sort ||
+    searchParams.sort === "recommended" ||
+    searchParams.sort === "reliability"
+  ) {
     available.sort((a, b) => {
-      const scoreA = a.publisherProfile?.reliability?.score ?? 100;
-      const scoreB = b.publisherProfile?.reliability?.score ?? 100;
+      const scoreA =
+        (a.publisherProfile?.reliability?.score ?? 100) * 0.6 +
+        (a.ratingAvg || 0) * 20 * 0.4;
+      const scoreB =
+        (b.publisherProfile?.reliability?.score ?? 100) * 0.6 +
+        (b.ratingAvg || 0) * 20 * 0.4;
       return scoreB - scoreA;
     });
   }

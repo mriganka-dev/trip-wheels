@@ -8,6 +8,7 @@ import {
   requestRemindersJob,
   vehicleConfirmationRemindersJob,
 } from "./booking.jobs.js";
+import { recomputeAllScoresJob } from "../services/reliability.service.js";
 
 const scheduledTasks = [];
 
@@ -83,6 +84,17 @@ export const startJobs = () => {
         await noShowSuggestionJob();
       } catch (err) {
         console.error("Error in noShowSuggestionJob:", err);
+      }
+    })
+  );
+
+  // Nightly job: recompute reliability scores from counters to correct drift (at 02:00 AM)
+  scheduledTasks.push(
+    cron.schedule("0 2 * * *", async () => {
+      try {
+        await recomputeAllScoresJob();
+      } catch (err) {
+        console.error("Error in recomputeAllScoresJob:", err);
       }
     })
   );

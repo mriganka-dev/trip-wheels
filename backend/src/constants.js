@@ -105,6 +105,45 @@ export const UNAVAILABILITY_REASONS = Object.freeze({
   OTHER: "other",
 });
 
+export const REVIEW_DIRECTIONS = Object.freeze({
+  CUSTOMER_TO_PUBLISHER: "customer_to_publisher",
+  PUBLISHER_TO_CUSTOMER: "publisher_to_customer",
+});
+
+export const ISSUE_TYPES = Object.freeze({
+  VEHICLE_MISMATCH: "vehicle_mismatch",
+  CHASSIS_MISMATCH: "chassis_mismatch",
+  REGISTRATION_MISMATCH: "registration_mismatch",
+  VEHICLE_DAMAGE_UNDISCLOSED: "vehicle_damage_undisclosed",
+  NOT_AS_PROMISED: "not_as_promised",
+  VEHICLE_UNAVAILABLE_AT_PICKUP: "vehicle_unavailable_at_pickup",
+  CUSTOMER_NO_SHOW: "customer_no_show",
+  CUSTOMER_DAMAGE: "customer_damage",
+  LATE_RETURN: "late_return",
+  MISCONDUCT: "misconduct",
+  OTHER: "other",
+});
+
+export const ISSUE_STATUS = Object.freeze({
+  OPEN: "open",
+  UNDER_REVIEW: "under_review",
+  RESOLVED: "resolved",
+  DISMISSED: "dismissed",
+});
+
+export const ISSUE_SEVERITY = Object.freeze({
+  LOW: "low",
+  MEDIUM: "medium",
+  HIGH: "high",
+  CRITICAL: "critical",
+});
+
+export const ISSUE_RESOLUTION_OUTCOMES = Object.freeze({
+  UPHELD: "upheld",
+  PARTIALLY_UPHELD: "partially_upheld",
+  DISMISSED: "dismissed",
+});
+
 export const NOTIFICATION_CHANNELS = Object.freeze({
   IN_APP: "in_app",
   PUSH: "push",

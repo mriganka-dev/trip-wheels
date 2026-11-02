@@ -3,7 +3,9 @@ import { ROLES } from "../constants.js";
 import * as adminController from "../controllers/admin.controller.js";
 import * as bookingController from "../controllers/booking.controller.js";
 import * as destinationController from "../controllers/destination.controller.js";
+import * as issueController from "../controllers/issue.controller.js";
 import * as notificationController from "../controllers/notification.controller.js";
+import * as reviewController from "../controllers/review.controller.js";
 import {
   authorizeRoles,
   requireActiveAccount,
@@ -14,6 +16,11 @@ import {
   adminBookingListQuerySchema,
   adminOverrideBookingStatusSchema,
 } from "../validators/booking.validator.js";
+import {
+  issueListQuerySchema,
+  resolveAdminIssueSchema,
+} from "../validators/issue.validator.js";
+import { hideReviewSchema } from "../validators/review.validator.js";
 import {
   createDestinationSchema,
   updateDestinationSchema,
@@ -123,6 +130,26 @@ router.patch(
   "/bookings/:id/status",
   validate({ body: adminOverrideBookingStatusSchema }),
   bookingController.adminOverrideStatus
+);
+
+// Admin Issues Management
+router.get(
+  "/issues",
+  validate({ query: issueListQuerySchema }),
+  issueController.getAdminIssues
+);
+
+router.patch(
+  "/issues/:id",
+  validate({ body: resolveAdminIssueSchema }),
+  issueController.resolveAdminIssue
+);
+
+// Admin Review Moderation
+router.patch(
+  "/reviews/:id/hide",
+  validate({ body: hideReviewSchema }),
+  reviewController.hideReview
 );
 
 export default router;

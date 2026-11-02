@@ -1,12 +1,15 @@
 import { Router } from "express";
 import { PUBLISHER_ROLES, ROLES } from "../constants.js";
 import * as bookingController from "../controllers/booking.controller.js";
+import * as issueController from "../controllers/issue.controller.js";
+import * as reviewController from "../controllers/review.controller.js";
 import {
   authorizeRoles,
   requireActiveAccount,
   requireEmailVerified,
   verifyJWT,
 } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import {
   acceptBookingSchema,
@@ -24,6 +27,8 @@ import {
   rejectBookingSchema,
   reportVehicleUnavailableSchema,
 } from "../validators/booking.validator.js";
+import { createIssueSchema } from "../validators/issue.validator.js";
+import { createReviewSchema } from "../validators/review.validator.js";
 
 const router = Router();
 
@@ -170,5 +175,21 @@ router.patch(
   bookingController.decideModification
 );
 
-export default router;
+// Reviews
+router.post(
+  "/:id/reviews",
+  authorizeRoles(ROLES.CUSTOMER, ...PUBLISHER_ROLES),
+  validate({ body: createReviewSchema }),
+  reviewController.createReview
+);
 
+// Issues
+router.post(
+  "/:id/issues",
+  authorizeRoles(ROLES.CUSTOMER, ...PUBLISHER_ROLES),
+  upload.array("evidence", 6),
+  validate({ body: createIssueSchema }),
+  issueController.raiseIssue
+);
+
+export default router;
