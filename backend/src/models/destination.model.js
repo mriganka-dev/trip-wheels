@@ -84,4 +84,3 @@ const destinationSchema = new mongoose.Schema(
 destinationSchema.index({ location: "2dsphere" });
 
 export const Destination = mongoose.model("Destination", destinationSchema);
-

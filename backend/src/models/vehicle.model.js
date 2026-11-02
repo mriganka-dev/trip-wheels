@@ -268,4 +268,3 @@ vehicleSchema.index({ "pricing.perDay": 1 });
 vehicleSchema.index({ "pickup.location": "2dsphere" });
 
 export const Vehicle = mongoose.model("Vehicle", vehicleSchema);
-

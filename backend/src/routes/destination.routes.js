@@ -6,4 +6,3 @@ const router = Router();
 router.get("/", destinationController.getActiveDestinations);
 
 export default router;
-

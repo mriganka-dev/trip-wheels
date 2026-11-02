@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ROLES } from "../constants.js";
 import * as adminController from "../controllers/admin.controller.js";
 import * as destinationController from "../controllers/destination.controller.js";
+import * as notificationController from "../controllers/notification.controller.js";
 import {
   authorizeRoles,
   requireActiveAccount,
@@ -12,6 +13,7 @@ import {
   createDestinationSchema,
   updateDestinationSchema,
 } from "../validators/destination.validator.js";
+import { updateAdminTaskSchema } from "../validators/notification.validator.js";
 import {
   adminRejectionSchema,
   adminReviewDocumentSchema,
@@ -95,5 +97,14 @@ router.patch(
 );
 
 router.patch("/vehicles/:id/suspend", adminController.suspendVehicle);
+
+// Admin Tasks
+router.get("/tasks", notificationController.getAdminTasks);
+
+router.patch(
+  "/tasks/:id",
+  validate({ body: updateAdminTaskSchema }),
+  notificationController.updateAdminTask
+);
 
 export default router;
