@@ -98,6 +98,30 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    reliability: {
+      score: {
+        type: Number,
+        default: 100,
+        min: 0,
+        max: 100,
+      },
+      cancellations: {
+        type: Number,
+        default: 0,
+      },
+      noShows: {
+        type: Number,
+        default: 0,
+      },
+      issuesUpheld: {
+        type: Number,
+        default: 0,
+      },
+      completedBookings: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   {
     timestamps: true,

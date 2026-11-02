@@ -1,11 +1,14 @@
 import app from "./app.js";
 import { env } from "./config/env.js";
 import { connectDB, disconnectDB } from "./db/index.js";
+import { startJobs, stopJobs } from "./jobs/index.js";
 
 let server;
 
 const startServer = async () => {
   await connectDB();
+
+  startJobs();
 
   server = app.listen(env.PORT, () => {
     console.log(
@@ -16,6 +19,8 @@ const startServer = async () => {
 
 const handleShutdown = async (signal) => {
   console.log(`Received ${signal}. Shutting down gracefully`);
+
+  stopJobs();
 
   if (server) {
     server.close(async () => {

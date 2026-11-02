@@ -4,4 +4,3 @@ export const sendInApp = async ({ userId, title, body, data }) => {
     sentAt: new Date(),
   };
 };
-

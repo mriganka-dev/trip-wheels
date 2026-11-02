@@ -2,6 +2,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import adminRoutes from "./admin.routes.js";
 import authRoutes from "./auth.routes.js";
+import bookingRoutes from "./booking.routes.js";
 import destinationRoutes from "./destination.routes.js";
 import notificationRoutes from "./notification.routes.js";
 import publisherRoutes from "./publisher.routes.js";
@@ -42,6 +43,7 @@ router.use("/users", userRoutes);
 router.use("/publishers", publisherRoutes);
 router.use("/destinations", destinationRoutes);
 router.use("/vehicles", vehicleRoutes);
+router.use("/bookings", bookingRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/admin", adminRoutes);
 

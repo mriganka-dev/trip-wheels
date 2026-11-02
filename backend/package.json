@@ -10,7 +10,7 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "seed:admin": "node scripts/seedAdmin.js",
-    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js"
+    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -25,6 +25,7 @@
     "mongoose": "^9.11.4",
     "morgan": "^1.12.1",
     "multer": "^2.5.0",
+    "node-cron": "^4.6.0",
     "nodemailer": "^10.3.1",
     "web-push": "^3.6.7",
     "zod": "^4.6.7"

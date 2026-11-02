@@ -20,4 +20,3 @@ export const updateAdminTaskSchema = z.object({
   note: z.string().trim().optional(),
   assignedTo: z.string().optional(),
 });
-

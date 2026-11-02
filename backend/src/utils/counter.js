@@ -1,24 +1,10 @@
-import mongoose from "mongoose";
-
-const counterSchema = new mongoose.Schema({
-  key: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  seq: {
-    type: Number,
-    default: 0,
-  },
-});
+import { Counter } from "../models/counter.model.js";
 
 export const getCounterModel = () => {
-  return mongoose.models.Counter || mongoose.model("Counter", counterSchema);
+  return Counter;
 };
 
 export const getNextSequence = async (key) => {
-  const Counter = getCounterModel();
-
   const record = await Counter.findOneAndUpdate(
     { key },
     { $inc: { seq: 1 } },
@@ -26,4 +12,9 @@ export const getNextSequence = async (key) => {
   );
 
   return record.seq;
+};
+
+export const generateBookingCode = async () => {
+  const seq = await getNextSequence("bookingCode");
+  return `TW-${String(seq).padStart(6, "0")}`;
 };

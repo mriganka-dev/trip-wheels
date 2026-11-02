@@ -25,4 +25,3 @@ export const sendWhatsApp = async ({ phone, title, body, event, data }) => {
     sentAt: new Date(),
   };
 };
-

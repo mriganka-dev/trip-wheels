@@ -49,4 +49,3 @@ const adminTaskSchema = new mongoose.Schema(
 );
 
 export const AdminTask = mongoose.model("AdminTask", adminTaskSchema);
-

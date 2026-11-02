@@ -47,4 +47,3 @@ export const sendNotificationEmail = async ({
     error: result.error,
   };
 };
-

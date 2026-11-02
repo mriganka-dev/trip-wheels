@@ -213,4 +213,3 @@ export const renderNotification = (event, data = {}) => {
     deepLink: template.deepLink(data),
   };
 };
-

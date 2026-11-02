@@ -35,6 +35,10 @@ const envSchema = z
       .union([z.boolean(), z.string()])
       .default(false)
       .transform((val) => val === true || val === "true"),
+    JOBS_ENABLED: z
+      .union([z.boolean(), z.string()])
+      .default(true)
+      .transform((val) => val === true || val === "true"),
     JOYTRIPS_BASE_URL: z.string().default("https://joytrips.example.com"),
   })
   .superRefine((data, ctx) => {
