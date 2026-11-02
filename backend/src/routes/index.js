@@ -1,5 +1,7 @@
 import { Router } from "express";
 import mongoose from "mongoose";
+import authRoutes from "./auth.routes.js";
+import userRoutes from "./user.routes.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const router = Router();
@@ -29,5 +31,8 @@ router.get("/health", (req, res) => {
     .status(200)
     .json(new ApiResponse(200, data, "Trip Wheels API is healthy"));
 });
+
+router.use("/auth", authRoutes);
+router.use("/users", userRoutes);
 
 export default router;

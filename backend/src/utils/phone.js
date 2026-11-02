@@ -28,4 +28,3 @@ export const normalizePhone = (input) => {
     "Invalid phone number. Provide a 10-digit mobile number or full country code."
   );
 };
-

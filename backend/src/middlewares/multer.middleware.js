@@ -96,4 +96,3 @@ export const checkFileSizeLimits = (req, res, next) => {
 };
 
 export const upload = baseUpload;
-

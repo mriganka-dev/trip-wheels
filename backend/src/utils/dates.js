@@ -23,4 +23,3 @@ export const getHoursDifference = (from, to) => {
   const diffMs = new Date(to).getTime() - new Date(from).getTime();
   return diffMs / (1000 * 60 * 60);
 };
-

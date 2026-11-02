@@ -36,4 +36,3 @@ export const bookingCreateLimiter = createLimiter({
   max: 20,
   message: "Too many booking requests created, please try again later",
 });
-

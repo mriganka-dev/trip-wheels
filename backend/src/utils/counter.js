@@ -27,4 +27,3 @@ export const getNextSequence = async (key) => {
 
   return record.seq;
 };
-

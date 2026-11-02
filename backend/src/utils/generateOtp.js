@@ -5,4 +5,3 @@ export const generateOtp = (length = 6) => {
   const max = Math.pow(10, length) - 1;
   return crypto.randomInt(min, max + 1).toString();
 };
-
