@@ -1,4 +1,5 @@
 import * as publisherService from "../services/publisher.service.js";
+import * as vehicleService from "../services/vehicle.service.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -113,4 +114,40 @@ export const unsuspendUser = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(new ApiResponse(200, user, "User unsuspended successfully"));
+});
+
+// Admin Vehicle Moderation
+
+export const getAdminVehicles = asyncHandler(async (req, res) => {
+  const result = await vehicleService.getAdminVehicles(req.query);
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "Admin vehicles list fetched"));
+});
+
+export const approveVehicle = asyncHandler(async (req, res) => {
+  const vehicle = await vehicleService.adminApproveVehicle(req.params.id);
+  res
+    .status(200)
+    .json(new ApiResponse(200, vehicle, "Vehicle approved successfully"));
+});
+
+export const rejectVehicle = asyncHandler(async (req, res) => {
+  const vehicle = await vehicleService.adminRejectVehicle(
+    req.params.id,
+    req.body.reason
+  );
+  res
+    .status(200)
+    .json(new ApiResponse(200, vehicle, "Vehicle rejected successfully"));
+});
+
+export const suspendVehicle = asyncHandler(async (req, res) => {
+  const vehicle = await vehicleService.adminSuspendVehicle(
+    req.params.id,
+    req.body.reason
+  );
+  res
+    .status(200)
+    .json(new ApiResponse(200, vehicle, "Vehicle suspended successfully"));
 });

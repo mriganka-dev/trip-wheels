@@ -234,4 +234,3 @@ export const PublisherProfile = mongoose.model(
   "PublisherProfile",
   publisherProfileSchema
 );
-

@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 export const validate = (schemas = {}) => {
   return async (req, res, next) => {
     try {
@@ -8,11 +6,23 @@ export const validate = (schemas = {}) => {
       }
 
       if (schemas.params) {
-        req.params = await schemas.params.parseAsync(req.params);
+        const parsedParams = await schemas.params.parseAsync(req.params);
+        Object.defineProperty(req, "params", {
+          value: parsedParams,
+          writable: true,
+          configurable: true,
+          enumerable: true,
+        });
       }
 
       if (schemas.query) {
-        req.query = await schemas.query.parseAsync(req.query);
+        const parsedQuery = await schemas.query.parseAsync(req.query);
+        Object.defineProperty(req, "query", {
+          value: parsedQuery,
+          writable: true,
+          configurable: true,
+          enumerable: true,
+        });
       }
 
       next();

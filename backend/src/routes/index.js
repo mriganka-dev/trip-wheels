@@ -2,8 +2,10 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import adminRoutes from "./admin.routes.js";
 import authRoutes from "./auth.routes.js";
+import destinationRoutes from "./destination.routes.js";
 import publisherRoutes from "./publisher.routes.js";
 import userRoutes from "./user.routes.js";
+import vehicleRoutes from "./vehicle.routes.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const router = Router();
@@ -37,6 +39,8 @@ router.get("/health", (req, res) => {
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
 router.use("/publishers", publisherRoutes);
+router.use("/destinations", destinationRoutes);
+router.use("/vehicles", vehicleRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;

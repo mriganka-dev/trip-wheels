@@ -56,4 +56,3 @@ export const VerificationDocument = mongoose.model(
   "VerificationDocument",
   verificationDocumentSchema
 );
-

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ROLES } from "../constants.js";
 import * as adminController from "../controllers/admin.controller.js";
+import * as destinationController from "../controllers/destination.controller.js";
 import {
   authorizeRoles,
   requireActiveAccount,
@@ -8,16 +9,22 @@ import {
 } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import {
+  createDestinationSchema,
+  updateDestinationSchema,
+} from "../validators/destination.validator.js";
+import {
   adminRejectionSchema,
   adminReviewDocumentSchema,
   adminSuspendUserSchema,
   adminVerificationCallSchema,
 } from "../validators/publisher.validator.js";
+import { adminVehicleRejectSchema } from "../validators/vehicle.validator.js";
 
 const router = Router();
 
 router.use(verifyJWT, requireActiveAccount, authorizeRoles(ROLES.ADMIN));
 
+// Verification Queue
 router.get("/verifications", adminController.getVerifications);
 
 router.get("/verifications/:publisherId", adminController.getVerificationById);
@@ -60,5 +67,33 @@ router.patch(
 );
 
 router.patch("/users/:userId/unsuspend", adminController.unsuspendUser);
+
+// Destination Management
+router.get("/destinations", destinationController.getAllDestinations);
+
+router.post(
+  "/destinations",
+  validate({ body: createDestinationSchema }),
+  destinationController.createDestination
+);
+
+router.patch(
+  "/destinations/:id",
+  validate({ body: updateDestinationSchema }),
+  destinationController.updateDestination
+);
+
+// Vehicle Moderation
+router.get("/vehicles", adminController.getAdminVehicles);
+
+router.patch("/vehicles/:id/approve", adminController.approveVehicle);
+
+router.patch(
+  "/vehicles/:id/reject",
+  validate({ body: adminVehicleRejectSchema }),
+  adminController.rejectVehicle
+);
+
+router.patch("/vehicles/:id/suspend", adminController.suspendVehicle);
 
 export default router;
