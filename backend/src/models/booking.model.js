@@ -153,7 +153,6 @@ const bookingSchema = new mongoose.Schema(
     statusHistory: [statusHistorySchema],
     responseDeadlineAt: {
       type: Date,
-      index: true,
     },
     respondedAt: {
       type: Date,
@@ -228,7 +227,6 @@ const bookingSchema = new mongoose.Schema(
       dueAt: {
         type: Date,
         default: null,
-        index: true,
       },
       confirmedAt: {
         type: Date,

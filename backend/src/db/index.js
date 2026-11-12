@@ -1,5 +1,13 @@
+import dns from "dns";
 import mongoose from "mongoose";
 import { env } from "../config/env.js";
+
+// Use public reliable DNS servers to avoid ISP SRV lookup failures on Windows / local routers
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (dnsErr) {
+  // Fallback to system default if setting servers fails
+}
 
 export const connectDB = async () => {
   try {
