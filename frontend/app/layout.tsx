@@ -4,6 +4,8 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { UnverifiedEmailBanner } from "@/components/auth/unverified-banner";
+import { SwRegister } from "@/components/pwa/sw-register";
+import { InstallBanner } from "@/components/pwa/install-banner";
 import { Providers } from "@/components/providers";
 import { APP_NAME } from "@/lib/constants";
 import "./globals.css";
@@ -29,6 +31,13 @@ export const metadata: Metadata = {
   },
   description:
     "Rent bikes and cars directly from verified rental shops and local owners at your travel destination across India.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -49,11 +58,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-(--paper) text-(--ink)">
         <Providers>
+          <SwRegister />
           <Header />
           <UnverifiedEmailBanner />
           <div className="flex-1 pb-16 md:pb-0">{children}</div>
           <Footer />
           <MobileTabBar />
+          <InstallBanner />
         </Providers>
       </body>
     </html>

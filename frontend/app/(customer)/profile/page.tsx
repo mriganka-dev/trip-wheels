@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Container } from "@/components/layout/container";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import {
   updateProfile,
@@ -15,6 +16,13 @@ import {
   updateNotificationPreferences,
   changePassword,
 } from "@/lib/api/profile";
+import {
+  getPushStatus,
+  subscribeToPush,
+  unsubscribeFromPush,
+  type PushStatus,
+} from "@/lib/push";
+import { isIos, isStandalone } from "@/lib/pwa";
 import type { User } from "@/types/auth";
 
 interface ProfileContentProps {
@@ -52,8 +60,74 @@ function ProfileContent({
   const [pushPref, setPushPref] = useState(
     user.notificationPreferences?.push ?? false
   );
+  const [pushStatus, setPushStatus] = useState<PushStatus>("off");
+  const [pushMessage, setPushMessage] = useState<string | null>(null);
+  const [isPushToggling, setIsPushToggling] = useState(false);
   const [prefsSuccess, setPrefsSuccess] = useState<string | null>(null);
   const [isUpdatingPrefs, setIsUpdatingPrefs] = useState(false);
+
+  useEffect(() => {
+    getPushStatus().then((status) => {
+      setPushStatus(status);
+      if (status === "on") {
+        setPushPref(true);
+      }
+    });
+  }, []);
+
+  const handlePushToggle = async () => {
+    setPushMessage(null);
+
+    if (pushStatus === "blocked") {
+      setPushMessage(
+        "Notifications are blocked in your browser settings. Please enable notification permissions for Trip Wheels in your browser or device settings."
+      );
+      return;
+    }
+
+    if (pushStatus === "not_supported") {
+      if (isIos() && !isStandalone()) {
+        setPushMessage(
+          "On iPhone, push notifications require adding Trip Wheels to your Home Screen first (Tap Share, then Add to Home Screen)."
+        );
+      } else {
+        setPushMessage("Push notifications are not supported on this browser.");
+      }
+      return;
+    }
+
+    setIsPushToggling(true);
+
+    if (pushStatus === "on") {
+      // Unsubscribe
+      const result = await unsubscribeFromPush();
+      if (result.success) {
+        setPushStatus("off");
+        setPushPref(false);
+        await updateNotificationPreferences({ push: false });
+        await refreshUser();
+        setPushMessage("Push notifications turned off on this device.");
+      } else {
+        setPushMessage(result.error || "Failed to turn off push notifications.");
+      }
+    } else {
+      // Subscribe
+      const result = await subscribeToPush();
+      if (result.success) {
+        setPushStatus("on");
+        setPushPref(true);
+        await updateNotificationPreferences({ push: true });
+        await refreshUser();
+        setPushMessage("Push notifications enabled. You will receive booking updates on this device.");
+      } else {
+        setPushMessage(result.error || "Failed to enable push notifications.");
+        const current = await getPushStatus();
+        setPushStatus(current);
+      }
+    }
+
+    setIsPushToggling(false);
+  };
 
   // Password State
   const [currentPassword, setCurrentPassword] = useState("");
@@ -328,19 +402,68 @@ function ProfileContent({
                 </div>
               </label>
 
-              <label className="flex items-start gap-3 rounded-md border border-line bg-paper-light p-3.5 cursor-pointer">
-                <Checkbox
-                  checked={pushPref}
-                  onChange={(e) => setPushPref(e.target.checked)}
-                  className="mt-0.5"
-                />
-                <div className="text-sm">
-                  <span className="font-semibold text-ink">Push Notifications</span>
-                  <p className="text-xs text-ink-muted">
-                    Receive device notifications when owners reply or update your trip.
-                  </p>
+              {/* Push Notifications with real device subscription wiring */}
+              <div className="rounded-md border border-line bg-paper-light p-3.5 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      checked={pushStatus === "on"}
+                      disabled={isPushToggling || pushStatus === "blocked" || pushStatus === "not_supported"}
+                      onChange={handlePushToggle}
+                      className="mt-0.5"
+                      id="push-toggle"
+                    />
+                    <label htmlFor="push-toggle" className="text-sm cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-ink">Push Notifications</span>
+                        <Badge
+                          tone={
+                            pushStatus === "on"
+                              ? "positive"
+                              : pushStatus === "blocked"
+                              ? "negative"
+                              : "neutral"
+                          }
+                        >
+                          {pushStatus === "on"
+                            ? "On"
+                            : pushStatus === "blocked"
+                            ? "Blocked"
+                            : pushStatus === "not_supported"
+                            ? "Not supported"
+                            : "Off"}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-ink-muted mt-0.5">
+                        We will tell you when the owner accepts, and about changes to your trip.
+                      </p>
+                    </label>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handlePushToggle}
+                    isLoading={isPushToggling}
+                    disabled={pushStatus === "blocked" || pushStatus === "not_supported"}
+                  >
+                    {pushStatus === "on" ? "Turn off" : "Turn on"}
+                  </Button>
                 </div>
-              </label>
+
+                {pushMessage && (
+                  <p
+                    className={`text-xs p-2 rounded border ${
+                      pushStatus === "blocked"
+                        ? "border-rose-200 bg-rose-50 text-rose-800"
+                        : "border-line bg-paper text-ink"
+                    }`}
+                  >
+                    {pushMessage}
+                  </p>
+                )}
+              </div>
 
               {prefsSuccess && (
                 <div className="rounded border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">

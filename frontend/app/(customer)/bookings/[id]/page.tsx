@@ -13,6 +13,7 @@ import { getBookingById } from "@/lib/api/bookings";
 import { queryKeys } from "@/lib/query-keys";
 import { BOOKING_STATUS_CONFIG, type BookingStatus } from "@/lib/constants";
 import { formatDateTime } from "@/lib/format";
+import { getPushStatus, subscribeToPush, type PushStatus } from "@/lib/push";
 import type { Booking } from "@/types/booking";
 
 import { BookingStatusTracker } from "@/components/booking/booking-status-tracker";
@@ -56,6 +57,20 @@ export default function BookingDetailPage({ params }: BookingPageProps) {
   const [isDateChangeOpen, setIsDateChangeOpen] = useState(false);
   const [isPickupConfirmOpen, setIsPickupConfirmOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
+  const [pushStatus, setPushStatus] = useState<PushStatus>("off");
+  const [isSubscribingPush, setIsSubscribingPush] = useState(false);
+
+  React.useEffect(() => {
+    getPushStatus().then((s) => setPushStatus(s));
+  }, []);
+
+  const handleEnablePush = async () => {
+    setIsSubscribingPush(true);
+    await subscribeToPush();
+    const s = await getPushStatus();
+    setPushStatus(s);
+    setIsSubscribingPush(false);
+  };
 
   const {
     data: booking,
@@ -272,6 +287,28 @@ export default function BookingDetailPage({ params }: BookingPageProps) {
             {/* Response Countdown for requested status */}
             {status === "requested" && booking.responseDeadlineAt && (
               <ResponseCountdown deadline={booking.responseDeadlineAt} />
+            )}
+
+            {/* Push notification prompt for requested bookings */}
+            {status === "requested" && pushStatus === "off" && (
+              <div className="rounded-lg border border-line bg-paper-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h3 className="font-serif text-sm font-bold text-ink">
+                    Get notified when the owner replies
+                  </h3>
+                  <p className="mt-0.5 text-xs text-ink-muted">
+                    We will tell you when the owner accepts, and about changes to your trip.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={handleEnablePush}
+                  isLoading={isSubscribingPush}
+                >
+                  Turn on notifications
+                </Button>
+              </div>
             )}
 
             {/* Owner Contact (when phone is provided) */}
