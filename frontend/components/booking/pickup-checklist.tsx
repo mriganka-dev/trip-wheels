@@ -9,25 +9,33 @@ interface PickupChecklistProps {
   bookingId: string;
 }
 
-interface ChecklistState {
+export interface ChecklistState {
   chassis: boolean;
   registration: boolean;
   condition: boolean;
   documents: boolean;
 }
 
-const DEFAULT_STATE: ChecklistState = {
+export const DEFAULT_CHECKLIST_STATE: ChecklistState = {
   chassis: false,
   registration: false,
   condition: false,
   documents: false,
 };
 
+export function getChecklistStorageKey(bookingId: string): string {
+  return `tw_pickup_checklist_${bookingId}`;
+}
+
+export function isChecklistComplete(state: ChecklistState): boolean {
+  return state.chassis && state.registration && state.condition && state.documents;
+}
+
 export function PickupChecklist({ bookingId }: PickupChecklistProps) {
-  const [checklist, setChecklist] = useState<ChecklistState>(DEFAULT_STATE);
+  const [checklist, setChecklist] = useState<ChecklistState>(DEFAULT_CHECKLIST_STATE);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const storageKey = `tw_pickup_checklist_${bookingId}`;
+  const storageKey = getChecklistStorageKey(bookingId);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -63,11 +71,7 @@ export function PickupChecklist({ bookingId }: PickupChecklistProps) {
     return null;
   }
 
-  const allChecked =
-    checklist.chassis &&
-    checklist.registration &&
-    checklist.condition &&
-    checklist.documents;
+  const allChecked = isChecklistComplete(checklist);
 
   return (
     <div className="rounded-lg border border-line bg-paper-card p-5">

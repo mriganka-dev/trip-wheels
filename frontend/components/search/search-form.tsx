@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { parseISO } from "date-fns";
 import { getActiveDestinations } from "@/lib/api/destinations";
 import { queryKeys } from "@/lib/query-keys";
-import { MIN_BOOKING_LEAD_HOURS } from "@/lib/constants";
-import { getDefaultBookingDates, isPickupLeadTimeValid } from "@/lib/format";
+import { getDefaultBookingDates } from "@/lib/format";
+import { validateSearchInputs } from "@/lib/search-validation";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -53,26 +52,9 @@ export function SearchForm({
     e.preventDefault();
     setError(null);
 
-    if (!destination) {
-      setError("Please select a destination.");
-      return;
-    }
-
-    if (!from || !to) {
-      setError("Please select both pickup and return dates.");
-      return;
-    }
-
-    if (!isPickupLeadTimeValid(from, MIN_BOOKING_LEAD_HOURS)) {
-      setError(`Pickup time must be at least ${MIN_BOOKING_LEAD_HOURS} hours from right now.`);
-      return;
-    }
-
-    const fromDate = parseISO(from);
-    const toDate = parseISO(to);
-
-    if (toDate <= fromDate) {
-      setError("Return time must be after pickup time.");
+    const validation = validateSearchInputs({ destination, from, to });
+    if (!validation.isValid && validation.error) {
+      setError(validation.error);
       return;
     }
 
