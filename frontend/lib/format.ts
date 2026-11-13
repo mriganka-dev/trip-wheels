@@ -1,4 +1,4 @@
-import { format, formatDistanceStrict, parseISO } from "date-fns";
+import { addDays, addHours, format, formatDistanceStrict, parseISO, setHours, setMinutes } from "date-fns";
 
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
@@ -57,3 +57,42 @@ export function formatDurationBetween(start: string | Date, end: string | Date):
   return formatDistanceStrict(startDate, endDate);
 }
 
+export function toDateTimeLocalString(date: Date): string {
+  return format(date, "yyyy-MM-dd'T'HH:mm");
+}
+
+export function getDefaultBookingDates(): { from: string; to: string } {
+  const now = new Date();
+  const tomorrow = addDays(now, 1);
+  const startDate = setMinutes(setHours(tomorrow, 9), 0);
+  const endDate = setMinutes(setHours(addDays(startDate, 2), 19), 0);
+
+  return {
+    from: toDateTimeLocalString(startDate),
+    to: toDateTimeLocalString(endDate),
+  };
+}
+
+export function getComingWeekendDates(): { from: string; to: string } {
+  const now = new Date();
+  const currentDay = now.getDay();
+  // Target upcoming Saturday (day 6)
+  const daysUntilSaturday = (6 - currentDay + 7) % 7 || 7;
+  const saturday = setMinutes(setHours(addDays(now, daysUntilSaturday), 9), 0);
+  const sundayEvening = setMinutes(setHours(addDays(saturday, 1), 20), 0);
+
+  return {
+    from: toDateTimeLocalString(saturday),
+    to: toDateTimeLocalString(sundayEvening),
+  };
+}
+
+export function isPickupLeadTimeValid(pickupString: string, minHours: number = 3): boolean {
+  try {
+    const pickup = parseISO(pickupString);
+    const minTime = addHours(new Date(), minHours);
+    return pickup >= minTime;
+  } catch {
+    return false;
+  }
+}
