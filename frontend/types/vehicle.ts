@@ -52,6 +52,10 @@ export interface Vehicle {
   color?: string;
   minRentalHours?: number;
   freeCancellationHours?: number;
+  cancellationPolicy?: {
+    freeCancellationHoursBeforePickup?: number;
+  };
+  cancellationWindowHours?: number;
   images: VehicleImage[];
   pricing: VehiclePricing;
   pickup: VehiclePickup;

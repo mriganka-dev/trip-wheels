@@ -44,6 +44,15 @@ export interface BookingCancellation {
   reason?: string;
 }
 
+export interface BookingModificationRequest {
+  _id: string;
+  newStartAt: string;
+  newEndAt: string;
+  status: "pending" | "accepted" | "rejected";
+  decidedAt?: string;
+  createdAt: string;
+}
+
 export interface Booking {
   _id: string;
   bookingCode: string;
@@ -77,7 +86,7 @@ export interface Booking {
   cancellation?: BookingCancellation;
   hasOpenIssue?: boolean;
   isOverdue?: boolean;
-  modificationRequests?: unknown[];
+  modificationRequests?: BookingModificationRequest[];
   createdAt: string;
   updatedAt?: string;
 }
