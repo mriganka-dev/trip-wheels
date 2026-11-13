@@ -5,6 +5,7 @@ import type {
   SearchVehiclesParams,
   Vehicle,
 } from "@/types/vehicle";
+import type { VehicleReviewsData } from "@/types/review";
 
 export async function searchVehicles(
   params: SearchVehiclesParams
@@ -48,3 +49,16 @@ export async function checkVehicleAvailability(
   );
 }
 
+export async function getVehicleReviews(
+  id: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<VehicleReviewsData> {
+  const query = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  return apiClient<VehicleReviewsData>(`/vehicles/${id}/reviews?${query.toString()}`, {
+    method: "GET",
+  });
+}
