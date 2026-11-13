@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 
 const targetDirs = ["app", "components", "lib", "hooks", "types", "tests", "scripts"];
-const targetFiles = ["README.md"];
+const targetFiles = ["README.md", "proxy.ts"];
 const allowedExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css", ".md", ".html"]);
 
 // Use dynamic string construction to prevent check-style from triggering its own checks

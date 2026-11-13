@@ -3,6 +3,7 @@ import { Fraunces, Public_Sans } from "next/font/google";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
+import { UnverifiedEmailBanner } from "@/components/auth/unverified-banner";
 import { Providers } from "@/components/providers";
 import { APP_NAME } from "@/lib/constants";
 import "./globals.css";
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-(--paper) text-(--ink)">
         <Providers>
           <Header />
+          <UnverifiedEmailBanner />
           <div className="flex-1 pb-16 md:pb-0">{children}</div>
           <Footer />
           <MobileTabBar />
