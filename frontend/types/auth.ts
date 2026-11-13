@@ -3,6 +3,8 @@ export interface User {
   fullName: string;
   email: string;
   phone: string;
+  phoneConfirmedByAdmin?: boolean;
+  phoneConfirmedAt?: string;
   role: "customer" | "agent" | "individual" | "admin";
   avatar?: {
     url: string;

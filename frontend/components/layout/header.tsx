@@ -6,6 +6,7 @@ import { APP_NAME } from "@/lib/constants";
 import { Container } from "./container";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
@@ -52,7 +53,8 @@ export function Header() {
             {isLoading ? (
               <div className="h-8 w-20 rounded bg-(--line)/40 animate-pulse" />
             ) : isAuthenticated && user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <NotificationBell />
                 <Link
                   href="/profile"
                   className="flex items-center gap-2 text-xs font-semibold text-(--ink) hover:text-(--brand)"

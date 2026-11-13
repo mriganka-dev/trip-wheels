@@ -3,8 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Search, CalendarCheck, Bell, User } from "lucide-react";
 import clsx from "clsx";
+import { useAuth } from "@/hooks/use-auth";
+import { getNotifications } from "@/lib/api/notifications";
+import { queryKeys } from "@/lib/query-keys";
 
 interface TabItem {
   label: string;
@@ -21,6 +25,17 @@ const TABS: TabItem[] = [
 
 export function MobileTabBar() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+
+  const { data } = useQuery({
+    queryKey: queryKeys.notifications.all(),
+    queryFn: () => getNotifications(1, 1),
+    enabled: isAuthenticated,
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+  });
+
+  const unreadCount = data?.unreadCount || 0;
 
   return (
     <nav
@@ -32,19 +47,27 @@ export function MobileTabBar() {
         const isActive =
           pathname === tab.href ||
           (tab.href !== "/" && pathname.startsWith(tab.href));
+        const isAlerts = tab.href === "/notifications";
 
         return (
           <Link
             key={tab.href}
             href={tab.href}
             className={clsx(
-              "flex flex-col items-center justify-center gap-1 py-1 px-3 text-xs font-medium transition-colors select-none",
+              "flex flex-col items-center justify-center gap-1 py-1 px-3 text-xs font-medium transition-colors select-none relative",
               isActive
                 ? "text-(--brand)"
                 : "text-(--ink-soft) hover:text-(--ink)"
             )}
           >
-            <Icon className="w-5 h-5" />
+            <div className="relative">
+              <Icon className="w-5 h-5" />
+              {isAlerts && unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-brand px-0.5 text-[9px] font-bold text-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </div>
             <span>{tab.label}</span>
           </Link>
         );
