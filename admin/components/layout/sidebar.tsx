@@ -3,12 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 import clsx from "clsx";
+import { useAuth } from "@/hooks/use-auth";
 import { APP_NAME } from "@/lib/constants";
 import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "./nav-items";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, logout, isLoggingOut } = useAuth();
 
   const isLinkActive = (href: string) => {
     if (href === "/") {
@@ -81,11 +84,27 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Footer info in sidebar */}
-        <div className="pt-4 mt-4 border-t border-(--line) px-3">
-          <p className="text-xs text-(--ink-soft)">
-            Signed in as owner
-          </p>
+        {/* Footer user profile & sign out */}
+        <div className="pt-4 mt-4 border-t border-(--line) px-3 flex flex-col gap-2">
+          {user && (
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-(--ink) truncate">
+                {user.fullName}
+              </span>
+              <span className="text-[11px] text-(--ink-soft) capitalize">
+                {user.role} partner
+              </span>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => logout()}
+            disabled={isLoggingOut}
+            className="flex items-center gap-2 text-xs font-medium text-(--negative) hover:underline cursor-pointer py-1 disabled:opacity-60 text-left"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
+          </button>
         </div>
       </div>
     </aside>

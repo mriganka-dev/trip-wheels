@@ -2,15 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Bell, Calendar, Car, Home, LogOut, Menu } from "lucide-react";
 import clsx from "clsx";
+import { useAuth } from "@/hooks/use-auth";
 import { BottomSheet, BottomSheetContent } from "@/components/ui/bottom-sheet";
 import { SECONDARY_NAV_ITEMS } from "./nav-items";
 
 export function BottomTabBar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { logout, isLoggingOut } = useAuth();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   const tabs = [
@@ -85,12 +86,13 @@ export function BottomTabBar() {
               type="button"
               onClick={() => {
                 setIsMoreOpen(false);
-                router.push("/login");
+                logout();
               }}
-              className="flex w-full items-center gap-3 px-3 py-3.5 text-sm font-medium text-(--negative) hover:bg-red-50 transition-colors min-h-[44px] text-left cursor-pointer"
+              disabled={isLoggingOut}
+              className="flex w-full items-center gap-3 px-3 py-3.5 text-sm font-medium text-(--negative) hover:bg-red-50 transition-colors min-h-[44px] text-left cursor-pointer disabled:opacity-60"
             >
               <LogOut className="w-5 h-5 text-(--negative)" />
-              <span>Sign out</span>
+              <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
             </button>
           </div>
         </BottomSheetContent>
