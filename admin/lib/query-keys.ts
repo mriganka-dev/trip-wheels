@@ -6,6 +6,9 @@ export const queryKeys = {
     profile: ["publisher", "profile"] as const,
     documents: ["publisher", "documents"] as const,
   },
+  destinations: {
+    list: ["destinations", "list"] as const,
+  },
   vehicles: {
     mine: (params?: Record<string, unknown>) => ["vehicles", "mine", params] as const,
     detail: (id: string) => ["vehicles", "detail", id] as const,
