@@ -30,5 +30,5 @@ Required environment variables are set in the `.env` file and validated at runti
 - `npm run build`: Compiles and builds the production application.
 - `npm run start`: Runs the built production application.
 - `npm run lint`: Runs ESLint checks.
-- `npm run check:style`: Audits the codebase for strict styling rules (no gradients, em dashes, or emoji).
+- `npm run check:style`: Audits the codebase for strict styling rules (flat colors, no em dashes, no emoji).
 - `npm run check:env`: Verifies environment hygiene and secret protections.
