@@ -2,9 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
-import { Bell, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export interface TopBarProps {
   title?: string;
@@ -17,7 +18,6 @@ export interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({
   title,
   userName,
-  unreadNotificationsCount = 0,
   onOpenMobileMenu,
   onSignOut,
 }) => {
@@ -49,16 +49,7 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Right: Notification bell, user profile link, sign out */}
       <div className="flex items-center gap-3">
-        <Link
-          href="/notifications"
-          aria-label="View notifications"
-          className="relative p-2 rounded text-ink-soft hover:text-ink hover:bg-brand-tint focus-visible:outline-2 focus-visible:outline-brand"
-        >
-          <Bell className="h-4 w-4" />
-          {unreadNotificationsCount > 0 && (
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-brand" />
-          )}
-        </Link>
+        <NotificationBell />
 
         <div className="hidden sm:flex items-center text-xs text-ink-soft">
           Signed in as{" "}

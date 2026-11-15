@@ -54,6 +54,13 @@ export const TASK_STATUS_META: Record<string, StatusMeta> = {
   done: { label: "Done", tone: "neutral" },
 };
 
+export const SEVERITY_META: Record<string, StatusMeta> = {
+  low: { label: "Low", tone: "neutral" },
+  medium: { label: "Medium", tone: "warning" },
+  high: { label: "High", tone: "negative" },
+  critical: { label: "Critical", tone: "negative" },
+};
+
 export const ISSUE_TYPE_LABELS: Record<string, string> = {
   vehicle_mismatch: "Vehicle does not match",
   chassis_mismatch: "Chassis number does not match",
@@ -94,6 +101,10 @@ export function getIssueStatusMeta(status: string): StatusMeta {
 
 export function getTaskStatusMeta(status: string): StatusMeta {
   return TASK_STATUS_META[status] || { label: status, tone: "neutral" };
+}
+
+export function getSeverityMeta(severity: string): StatusMeta {
+  return SEVERITY_META[severity] || { label: severity, tone: "neutral" };
 }
 
 export function getIssueTypeLabel(type: string): string {
