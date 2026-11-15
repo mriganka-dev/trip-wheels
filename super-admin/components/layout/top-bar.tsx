@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export interface TopBarProps {
   title?: string;
@@ -15,11 +16,16 @@ export interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({
   title,
-  userName = "Admin",
+  userName,
   unreadNotificationsCount = 0,
   onOpenMobileMenu,
   onSignOut,
 }) => {
+  const { user, logout } = useAuth();
+  const displayName = userName || user?.fullName || "Admin";
+
+  const handleSignOut = onSignOut || (() => logout());
+
   return (
     <header className="h-16 px-4 sm:px-6 bg-surface border-b border-line flex items-center justify-between gap-4 sticky top-0 z-20">
       {/* Left: Mobile trigger & Page title */}
@@ -41,7 +47,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         )}
       </div>
 
-      {/* Right: Notification bell, user name, sign out */}
+      {/* Right: Notification bell, user profile link, sign out */}
       <div className="flex items-center gap-3">
         <Link
           href="/notifications"
@@ -55,26 +61,23 @@ export const TopBar: React.FC<TopBarProps> = ({
         </Link>
 
         <div className="hidden sm:flex items-center text-xs text-ink-soft">
-          Signed in as <span className="font-medium text-ink ml-1">{userName}</span>
+          Signed in as{" "}
+          <Link
+            href="/profile"
+            className="font-medium text-ink hover:text-brand underline underline-offset-2 ml-1"
+          >
+            {displayName}
+          </Link>
         </div>
 
-        {onSignOut ? (
-          <Button
-            type="button"
-            variant="quiet"
-            size="sm"
-            onClick={onSignOut}
-          >
-            Sign out
-          </Button>
-        ) : (
-          <Link
-            href="/login"
-            className="text-xs text-ink-soft hover:text-ink font-medium px-2 py-1 rounded hover:bg-brand-tint"
-          >
-            Sign out
-          </Link>
-        )}
+        <Button
+          type="button"
+          variant="quiet"
+          size="sm"
+          onClick={handleSignOut}
+        >
+          Sign out
+        </Button>
       </div>
     </header>
   );
