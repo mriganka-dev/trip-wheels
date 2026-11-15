@@ -32,6 +32,18 @@ export interface BookingVehicleSummary {
   };
 }
 
+export interface BookingPickup {
+  mode?: "fixed" | "flexible";
+  address?: string;
+  landmark?: string;
+  location?: {
+    type?: "Point";
+    coordinates?: [number, number];
+  };
+  finalizedAt?: string | null;
+  note?: string;
+}
+
 export interface BookingVehicleConfirmation {
   dueAt?: string | null;
   confirmedAt?: string | null;
@@ -41,6 +53,7 @@ export interface BookingVehicleConfirmation {
   color?: string;
   notes?: string;
   missedAt?: string | null;
+  swappedFromVehicle?: string | BookingVehicleSummary | null;
 }
 
 export interface BookingModificationRequest {
@@ -58,11 +71,33 @@ export interface BookingHandover {
   licenseVerified?: boolean;
   verifiedAt?: string | null;
   pickedUpAt?: string | null;
+  markedBy?: string | null;
   declined?: {
     at?: string | null;
     reason?: string;
     note?: string;
   };
+}
+
+export interface BookingStatusHistoryItem {
+  status: string;
+  at: string;
+  by?: string | null;
+  note?: string;
+}
+
+export interface BookingUnavailability {
+  reportedAt?: string | null;
+  reason?: string;
+  note?: string;
+  hoursBeforePickup?: number | null;
+  lateDisclosure?: boolean;
+}
+
+export interface BookingCompletion {
+  completedAt?: string | null;
+  completedBy?: "customer" | "publisher" | "system" | null;
+  autoCompleted?: boolean;
 }
 
 export interface Booking {
@@ -74,14 +109,17 @@ export interface Booking {
   durationHours?: number;
   responseDeadlineAt?: string;
   respondedAt?: string | null;
+  confirmedAt?: string | null;
   customer?: BookingCustomer;
   publisher?: {
     _id: string;
     fullName?: string;
     phone?: string;
+    email?: string;
   };
   vehicle: BookingVehicleSummary;
   assignedVehicle?: BookingVehicleSummary;
+  pickup?: BookingPickup;
   pricingSnapshot?: {
     perDay?: number;
     perHour?: number;
@@ -97,6 +135,9 @@ export interface Booking {
   isOverdue?: boolean;
   hasOpenIssue?: boolean;
   modificationRequests?: BookingModificationRequest[];
+  statusHistory?: BookingStatusHistoryItem[];
+  unavailability?: BookingUnavailability;
+  completion?: BookingCompletion;
   cancellation?: {
     by?: string | null;
     at?: string | null;
@@ -124,4 +165,46 @@ export interface AcceptBookingPayload {
 
 export interface RejectBookingPayload {
   reason?: string;
+}
+
+export interface FinalizePickupPointPayload {
+  address: string;
+  landmark?: string;
+  coordinates: [number, number];
+  note?: string;
+}
+
+export interface ConfirmVehiclePayload {
+  chassisNumber: string;
+  registrationNumber: string;
+  color?: string;
+  notes?: string;
+  assignedVehicleId?: string;
+}
+
+export interface ReportVehicleUnavailablePayload {
+  reason: "rented_elsewhere" | "damaged" | "in_service" | "maintenance" | "other";
+  note?: string;
+}
+
+export interface ConfirmPickupReadyPayload {
+  note?: string;
+}
+
+export interface HandoverPayload {
+  customerIdVerified: true;
+  licenseVerified: true;
+}
+
+export interface DeclineHandoverPayload {
+  reason: "invalid_id" | "invalid_license" | "name_mismatch" | "other";
+  note?: string;
+}
+
+export interface CancelBookingPayload {
+  reason: string;
+}
+
+export interface CompleteBookingPayload {
+  note?: string;
 }
