@@ -8,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
   ArrowLeft,
-  Calendar,
   CheckCircle2,
   Edit,
   FileText,
@@ -22,15 +21,19 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DefinitionList } from "@/components/ui/definition-list";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { FileInput } from "@/components/ui/file-input";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { AvailabilityCalendar } from "@/components/vehicles/availability-calendar";
 import {
   deleteVehicle,
   getVehicle,
   pauseVehicle,
   resumeVehicle,
   submitVehicle,
+  uploadVehicleDocuments,
 } from "@/lib/api/vehicles";
 import { queryKeys } from "@/lib/query-keys";
 import { getVehicleStatusMeta } from "@/lib/constants";
@@ -49,6 +52,13 @@ export default function VehicleDetailPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // Insurance update dialog state
+  const [isInsuranceDialogOpen, setIsInsuranceDialogOpen] = useState(false);
+  const [policyNumberInput, setPolicyNumberInput] = useState("");
+  const [expiryDateInput, setExpiryDateInput] = useState("");
+  const [insuranceFileInput, setInsuranceFileInput] = useState<File | null>(null);
+  const [insuranceError, setInsuranceError] = useState<string | null>(null);
+
   const {
     data: vehicle,
     isLoading,
@@ -57,6 +67,48 @@ export default function VehicleDetailPage() {
     queryKey: queryKeys.vehicles.detail(id),
     queryFn: () => getVehicle(id),
     enabled: Boolean(id),
+  });
+
+  const updateInsuranceMutation = useMutation({
+    mutationFn: async () => {
+      if (!vehicle) throw new Error("Vehicle data not loaded.");
+      if (!policyNumberInput.trim()) {
+        throw new Error("Insurance policy number is required.");
+      }
+      if (!expiryDateInput) {
+        throw new Error("Insurance expiry date is required.");
+      }
+
+      const chassisNumber = vehicle.chassisNumber || "UNKNOWN";
+      const registrationNumber =
+        vehicle.registrationNumber ||
+        vehicle.rc?.registrationNumber ||
+        "UNKNOWN";
+      const rcOwnerName = vehicle.rc?.ownerName || "Owner";
+
+      return uploadVehicleDocuments(id, {
+        chassisNumber,
+        registrationNumber,
+        rcOwnerName,
+        insurancePolicyNumber: policyNumberInput.trim(),
+        insuranceExpiresAt: new Date(expiryDateInput).toISOString(),
+        insurance: insuranceFileInput || undefined,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.vehicles.detail(id),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.mine() });
+      showToast("Insurance document updated successfully.", "brand");
+      setIsInsuranceDialogOpen(false);
+      setInsuranceFileInput(null);
+      setInsuranceError(null);
+    },
+    onError: (err: Error) => {
+      setInsuranceError(err.message || "Failed to update insurance.");
+      showToast(err.message || "Failed to update insurance.", "negative");
+    },
   });
 
   // Action mutations
@@ -259,11 +311,26 @@ export default function VehicleDetailPage() {
               </div>
             </div>
 
-            <Link href={`/vehicles/${id}/edit`}>
-              <Button variant="secondary" size="sm" className="shrink-0 text-xs">
-                Upload new insurance
-              </Button>
-            </Link>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="shrink-0 text-xs"
+              onClick={() => {
+                setPolicyNumberInput(vehicle.insurance?.policyNumber || "");
+                setExpiryDateInput(
+                  vehicle.insurance?.expiresAt
+                    ? new Date(vehicle.insurance.expiresAt)
+                        .toISOString()
+                        .slice(0, 10)
+                    : ""
+                );
+                setInsuranceFileInput(null);
+                setInsuranceError(null);
+                setIsInsuranceDialogOpen(true);
+              }}
+            >
+              Upload new insurance
+            </Button>
           </div>
         )}
 
@@ -503,24 +570,28 @@ export default function VehicleDetailPage() {
           </section>
         </div>
 
-        {/* Availability Calendar Link (Plan 5 preview) */}
-        <section className="p-6 rounded-md border border-(--line) bg-(--surface) flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <Calendar className="w-5 h-5 text-(--brand) shrink-0 mt-0.5" />
+        {/* Availability and Calendar Section */}
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold font-display text-(--ink)">
+              <h2 className="text-sm font-bold font-display text-(--ink)">
                 Availability and calendar
-              </h3>
+              </h2>
               <p className="text-xs text-(--ink-soft) mt-0.5">
-                Block maintenance dates or see upcoming bookings for this vehicle.
+                Manage blocked dates and view confirmed and requested bookings for this vehicle.
               </p>
             </div>
+            <Link href="/schedule">
+              <Button variant="quiet" size="sm">
+                Open full schedule
+              </Button>
+            </Link>
           </div>
-          <Link href="/schedule">
-            <Button variant="secondary" size="sm">
-              Open schedule
-            </Button>
-          </Link>
+
+          <AvailabilityCalendar
+            vehicleId={vehicle._id}
+            vehicleName={`${vehicle.brand} ${vehicle.model}`}
+          />
         </section>
 
         {/* Delete Vehicle Danger Action */}
@@ -590,6 +661,112 @@ export default function VehicleDetailPage() {
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Upload New Insurance Dialog */}
+        <Dialog
+          open={isInsuranceDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsInsuranceDialogOpen(false);
+              setInsuranceError(null);
+            }
+          }}
+        >
+          <DialogContent
+            title="Upload new insurance"
+            description="Update the policy number, expiry date and policy certificate for this vehicle."
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateInsuranceMutation.mutate();
+              }}
+              className="flex flex-col gap-4 pt-2 text-xs text-(--ink)"
+            >
+              {insuranceError && (
+                <div
+                  role="alert"
+                  className="p-3 rounded bg-red-50 border border-red-200 text-(--negative) flex items-start gap-2"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{insuranceError}</span>
+                </div>
+              )}
+
+              <div>
+                <label
+                  htmlFor="dialog-insurance-policy"
+                  className="block text-xs font-semibold text-(--ink) mb-1"
+                >
+                  Insurance policy number
+                </label>
+                <Input
+                  id="dialog-insurance-policy"
+                  type="text"
+                  value={policyNumberInput}
+                  onChange={(e) => setPolicyNumberInput(e.target.value)}
+                  placeholder="e.g. POL-9876543210"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="dialog-insurance-expiry"
+                  className="block text-xs font-semibold text-(--ink) mb-1"
+                >
+                  Policy expiry date
+                </label>
+                <Input
+                  id="dialog-insurance-expiry"
+                  type="date"
+                  value={expiryDateInput}
+                  onChange={(e) => setExpiryDateInput(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-(--ink) mb-1">
+                  Insurance certificate document
+                </label>
+                <FileInput
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  maxSizeMb={8}
+                  onChange={(file) => setInsuranceFileInput(file)}
+                />
+                <p className="text-[11px] text-(--ink-soft) mt-1">
+                  Upload PDF, JPG, PNG or WebP up to 8 MB.
+                </p>
+              </div>
+
+              <DialogFooter className="mt-4">
+                <Button
+                  type="button"
+                  variant="quiet"
+                  size="md"
+                  onClick={() => {
+                    setIsInsuranceDialogOpen(false);
+                    setInsuranceError(null);
+                  }}
+                  disabled={updateInsuranceMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  disabled={updateInsuranceMutation.isPending}
+                >
+                  {updateInsuranceMutation.isPending
+                    ? "Saving..."
+                    : "Save insurance"}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>

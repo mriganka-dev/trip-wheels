@@ -56,3 +56,21 @@ export function DialogContent({
     </DialogPrimitive.Portal>
   );
 }
+
+export function DialogFooter({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={clsx(
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2 gap-2 mt-5",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}

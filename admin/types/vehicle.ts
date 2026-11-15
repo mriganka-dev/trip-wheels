@@ -196,7 +196,7 @@ export function checkVehicleInsurance(expiresAt?: string | null): InsuranceStatu
     return {
       status: "expired",
       daysRemaining: 0,
-      message: "Insurance expired. Upload a new insurance document to make it live again.",
+      message: "This vehicle is paused. Upload a new insurance document to make it live again.",
       tone: "negative",
     };
   }

@@ -6,6 +6,10 @@ import type {
   UploadVehicleDocumentsPayload,
   Vehicle,
 } from "@/types/vehicle";
+import type {
+  CreateUnavailabilityPayload,
+  VehicleUnavailability,
+} from "@/types/unavailability";
 
 export interface GetMyVehiclesParams {
   status?: string;
@@ -140,6 +144,36 @@ export async function resumeVehicle(id: string): Promise<Vehicle> {
 
 export async function deleteVehicle(id: string): Promise<void> {
   await apiClient<void>(`/vehicles/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function getVehicleUnavailability(
+  vehicleId: string
+): Promise<VehicleUnavailability[]> {
+  return apiClient<VehicleUnavailability[]>(
+    `/vehicles/${vehicleId}/unavailability`
+  );
+}
+
+export async function addVehicleUnavailability(
+  vehicleId: string,
+  payload: CreateUnavailabilityPayload
+): Promise<VehicleUnavailability> {
+  return apiClient<VehicleUnavailability>(
+    `/vehicles/${vehicleId}/unavailability`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
+export async function removeVehicleUnavailability(
+  vehicleId: string,
+  blockId: string
+): Promise<void> {
+  await apiClient<void>(`/vehicles/${vehicleId}/unavailability/${blockId}`, {
     method: "DELETE",
   });
 }

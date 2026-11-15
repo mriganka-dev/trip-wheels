@@ -7,7 +7,6 @@ import type { MapContainerProps, MarkerProps, TileLayerProps } from "react-leafl
 import { LocateFixed, RotateCcw } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
-import "leaflet/dist/leaflet.css";
 
 export interface PinPickerProps {
   value?: [number, number]; // [longitude, latitude]

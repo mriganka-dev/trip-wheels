@@ -62,6 +62,20 @@ export const LATE_DISCLOSURE_HOURS = 24;
 export const NO_SHOW_GRACE_MINUTES = 120;
 export const INDIVIDUAL_MAX_VEHICLES = 2;
 
+export const UNAVAILABILITY_REASONS = [
+  { value: "rented_elsewhere", label: "Rented elsewhere" },
+  { value: "maintenance", label: "Maintenance" },
+  { value: "damaged", label: "Damaged" },
+  { value: "in_service", label: "In service" },
+  { value: "personal_use", label: "Personal use" },
+  { value: "other", label: "Other" },
+] as const;
+
+export function formatUnavailabilityReason(reason: string): string {
+  const match = UNAVAILABILITY_REASONS.find((r) => r.value === reason);
+  return match ? match.label : reason;
+}
+
 export function getBookingStatusMeta(status: string): StatusMeta {
   return BOOKING_STATUS_CONFIG[status] || { label: status, tone: "neutral" };
 }

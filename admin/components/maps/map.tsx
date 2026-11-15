@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 import type { DivIcon } from "leaflet";
 import type { MapContainerProps, TileLayerProps, MarkerProps, PopupProps } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 
 export interface MapProps {
   latitude: number;
