@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { BottomTabBar } from "./bottom-tab-bar";
+import { DASHBOARD_NAME } from "@/lib/constants";
 
 export interface AppShellProps {
   children: React.ReactNode;
@@ -13,6 +14,12 @@ export interface AppShellProps {
 }
 
 export function AppShell({ children, title, subtitle, actions }: AppShellProps) {
+  useEffect(() => {
+    if (title) {
+      document.title = `${title} | ${DASHBOARD_NAME}`;
+    }
+  }, [title]);
+
   return (
     <div className="min-h-screen bg-(--paper) text-(--ink)">
       {/* Desktop fixed sidebar */}

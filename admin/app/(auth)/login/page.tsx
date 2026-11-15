@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/hooks/use-auth";
 import { ApiError } from "@/lib/api/client";
+import { DASHBOARD_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,10 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
   const { login } = useAuth();
+
+  useEffect(() => {
+    document.title = `Sign in | ${DASHBOARD_NAME}`;
+  }, []);
 
   const [rootError, setRootError] = useState<string | null>(null);
 
