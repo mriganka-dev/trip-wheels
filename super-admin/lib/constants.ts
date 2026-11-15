@@ -54,6 +54,12 @@ export const TASK_STATUS_META: Record<string, StatusMeta> = {
   done: { label: "Done", tone: "neutral" },
 };
 
+export const DOCUMENT_STATUS_META: Record<string, StatusMeta> = {
+  pending: { label: "Waiting for review", tone: "warning" },
+  approved: { label: "Approved", tone: "brand" },
+  rejected: { label: "Rejected", tone: "negative" },
+};
+
 export const SEVERITY_META: Record<string, StatusMeta> = {
   low: { label: "Low", tone: "neutral" },
   medium: { label: "Medium", tone: "warning" },
@@ -81,6 +87,17 @@ export const TASK_TYPE_LABELS: Record<string, string> = {
   call_publisher_pickup_unconfirmed: "Call: pickup not confirmed",
   review_issue: "Review an issue",
   review_flag: "Review a flag",
+};
+
+export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  aadhar: "Aadhaar Card",
+  pan: "PAN Card",
+  driving_license: "Driving License",
+  passport: "Passport",
+  voter_id: "Voter ID",
+  gst_certificate: "GST Certificate",
+  business_registration: "Business Registration",
+  other: "Other Document",
 };
 
 export function getVerificationStatusMeta(status: string): StatusMeta {
@@ -113,4 +130,12 @@ export function getIssueTypeLabel(type: string): string {
 
 export function getTaskTypeLabel(type: string): string {
   return TASK_TYPE_LABELS[type] || type;
+}
+
+export function getDocumentStatusMeta(status: string): StatusMeta {
+  return DOCUMENT_STATUS_META[status] || { label: status, tone: "neutral" };
+}
+
+export function getDocumentTypeLabel(type: string): string {
+  return DOCUMENT_TYPE_LABELS[type] || type;
 }
