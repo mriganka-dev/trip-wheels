@@ -632,14 +632,6 @@ export const finalizePickupPoint = async (publisher, bookingId, data) => {
 
   await booking.save();
 
-  await logAudit({
-    actorId: adminUser._id,
-    action: "override_booking_status",
-    targetType: "Booking",
-    targetId: booking._id,
-    after: { status: targetStatus, note },
-  });
-
   const populated = await Booking.findById(booking._id)
     .populate("customer", "fullName phone reliability email")
     .populate("publisher", "fullName phone email")
