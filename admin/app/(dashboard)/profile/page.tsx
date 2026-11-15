@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,13 @@ import {
   uploadAvatar,
 } from "@/lib/api/auth";
 import { queryKeys } from "@/lib/query-keys";
+import {
+  getPushPermissionState,
+  isPushSupported,
+  subscribeToPush,
+  unsubscribeFromPush,
+} from "@/lib/push";
+import { isIosSafari } from "@/lib/pwa";
 
 export default function ProfilePage() {
   const { user, logout, isLoggingOut } = useAuth();
@@ -60,8 +68,21 @@ export default function ProfilePage() {
   const [pushNotif, setPushNotif] = useState(
     user?.notificationPreferences?.push ?? true
   );
+  const [pushPermission, setPushPermission] = useState<
+    "granted" | "denied" | "default" | "unsupported"
+  >("default");
+  const [isIos, setIsIos] = useState(false);
+  const [isPushLoading, setIsPushLoading] = useState(false);
   const [prefMessage, setPrefMessage] = useState<string | null>(null);
   const [prefError, setPrefError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPushPermission(getPushPermissionState());
+      setIsIos(isIosSafari());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Update profile mutation
   const profileMutation = useMutation({
@@ -165,12 +186,58 @@ export default function ProfilePage() {
     },
   });
 
-  const handlePrefToggle = (field: "inApp" | "email" | "push", nextVal: boolean) => {
+  const handlePrefToggle = (field: "inApp" | "email", nextVal: boolean) => {
     if (field === "inApp") setInAppNotif(nextVal);
     if (field === "email") setEmailNotif(nextVal);
-    if (field === "push") setPushNotif(nextVal);
 
     prefMutation.mutate({ [field]: nextVal });
+  };
+
+  const handlePushToggle = async (nextVal: boolean) => {
+    setPrefError(null);
+    setPrefMessage(null);
+
+    if (!isPushSupported()) {
+      setPrefError("Push notifications are not supported on this browser.");
+      return;
+    }
+
+    setIsPushLoading(true);
+
+    if (nextVal) {
+      try {
+        await subscribeToPush();
+        setPushNotif(true);
+        setPushPermission("granted");
+        prefMutation.mutate({ push: true });
+        showToast("Push notifications turned on.", "brand");
+      } catch (err) {
+        setPushPermission(getPushPermissionState());
+        setPushNotif(false);
+        setPrefError(
+          err instanceof Error
+            ? err.message
+            : "Failed to enable push notifications."
+        );
+      } finally {
+        setIsPushLoading(false);
+      }
+    } else {
+      try {
+        await unsubscribeFromPush();
+        setPushNotif(false);
+        prefMutation.mutate({ push: false });
+        showToast("Push notifications turned off.", "neutral");
+      } catch (err) {
+        setPrefError(
+          err instanceof Error
+            ? err.message
+            : "Failed to unsubscribe from push."
+        );
+      } finally {
+        setIsPushLoading(false);
+      }
+    }
   };
 
   return (
@@ -367,21 +434,50 @@ export default function ProfilePage() {
               </div>
             </label>
 
-            <label className="flex items-start gap-3 cursor-pointer">
-              <Checkbox
-                checked={pushNotif}
-                onChange={(e) => handlePrefToggle("push", e.target.checked)}
-                className="mt-0.5"
-              />
-              <div className="text-xs">
-                <span className="font-medium text-(--ink) block">
-                  Push notifications
-                </span>
-                <span className="text-(--ink-soft)">
-                  Receive real-time banners on your phone or computer browser.
-                </span>
-              </div>
-            </label>
+            <div className="rounded border border-(--line) bg-(--surface-soft)/40 p-3 space-y-2">
+              <label className="flex items-start justify-between gap-3 cursor-pointer">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={pushNotif && pushPermission === "granted"}
+                    onChange={(e) => handlePushToggle(e.target.checked)}
+                    disabled={isPushLoading || pushPermission === "unsupported" || pushPermission === "denied"}
+                    className="mt-0.5"
+                  />
+                  <div className="text-xs">
+                    <span className="font-medium text-(--ink) block">
+                      Push notifications {isPushLoading ? "(Updating...)" : ""}
+                    </span>
+                    <span className="text-(--ink-soft)">
+                      We will alert you when a customer sends a request, when you need to confirm a vehicle, and when something changes on a trip.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="shrink-0">
+                  {pushPermission === "unsupported" ? (
+                    <Badge tone="neutral">Not supported</Badge>
+                  ) : pushPermission === "denied" ? (
+                    <Badge tone="negative">Blocked in browser</Badge>
+                  ) : pushPermission === "granted" && pushNotif ? (
+                    <Badge tone="brand">Active</Badge>
+                  ) : (
+                    <Badge tone="neutral">Off</Badge>
+                  )}
+                </div>
+              </label>
+
+              {pushPermission === "denied" && (
+                <p className="text-xs text-rose-700 pl-7">
+                  Notifications are blocked in your browser settings. To receive alerts, please enable notification permission for this site in your browser or phone settings.
+                </p>
+              )}
+
+              {isIos && pushPermission !== "granted" && (
+                <p className="text-xs text-(--ink-soft) pl-7">
+                  On iPhone, push alerts work after adding Trip Wheels to your Home Screen via Safari (Share &gt; Add to Home Screen).
+                </p>
+              )}
+            </div>
           </div>
         </section>
 

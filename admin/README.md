@@ -29,6 +29,18 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## PWA & App Icons
+
+The partner dashboard is configured as a Progressive Web App (PWA). PWA icons (`icon-192.png`, `icon-512.png`, `icon-512-maskable.png`, and `apple-touch-icon.png`) are generated from the SVG mark at `app/icon.svg`.
+
+To update the app icon in the future:
+1. Replace or update the SVG mark at `app/icon.svg`.
+2. Run the icon generation script:
+```bash
+node scripts/generate-icons.mjs
+```
+The script renders standard and maskable icons into `public/icons/`.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

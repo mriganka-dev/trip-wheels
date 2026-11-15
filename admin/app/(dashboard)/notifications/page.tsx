@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, ChevronRight } from "lucide-react";
+import { Bell, CheckCheck, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -18,6 +18,11 @@ import {
 import { formatNotification } from "@/lib/notification-format";
 import { formatDateTime } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
+import {
+  getPushPermissionState,
+  isPushSupported,
+  subscribeToPush,
+} from "@/lib/push";
 import type { NotificationItem } from "@/types/notification";
 
 export default function NotificationsPage() {
@@ -27,6 +32,39 @@ export default function NotificationsPage() {
 
   const [page, setPage] = useState(1);
   const limit = 20;
+
+  const [pushPermission, setPushPermission] = useState<
+    "granted" | "denied" | "default" | "unsupported"
+  >("default");
+  const [isEnablingPush, setIsEnablingPush] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPushPermission(getPushPermissionState());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleTurnOnPush = async () => {
+    if (!isPushSupported()) {
+      showToast("Push notifications are not supported on this browser.", "neutral");
+      return;
+    }
+    setIsEnablingPush(true);
+    try {
+      await subscribeToPush();
+      setPushPermission("granted");
+      showToast("Push notifications turned on.", "brand");
+    } catch (err) {
+      setPushPermission(getPushPermissionState());
+      showToast(
+        err instanceof Error ? err.message : "Failed to turn on notifications.",
+        "negative"
+      );
+    } finally {
+      setIsEnablingPush(false);
+    }
+  };
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.notifications.list({ page, limit }),
@@ -83,6 +121,35 @@ export default function NotificationsPage() {
       }
     >
       <div className="space-y-6">
+        {pushPermission === "default" && (
+          <div className="rounded-md border border-(--line) bg-(--surface) p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded bg-(--brand)/10 text-(--brand) flex items-center justify-center shrink-0 mt-0.5">
+                <Bell className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-semibold text-(--ink)">
+                  Turn on push notifications
+                </h3>
+                <p className="text-xs text-(--ink-soft)">
+                  We will alert you when a customer sends a request, when you need to confirm a vehicle, and when something changes on a trip.
+                </p>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              isLoading={isEnablingPush}
+              onClick={handleTurnOnPush}
+              className="shrink-0 w-full sm:w-auto"
+            >
+              Turn on notifications
+            </Button>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Public_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { DASHBOARD_NAME } from "@/lib/constants";
+import { ServiceWorkerRegistration } from "@/components/common/service-worker-registration";
+import { PwaInstallBanner } from "@/components/common/pwa-install-banner";
 import "./globals.css";
 
 const displayFont = Fraunces({
@@ -33,6 +35,14 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "any" },
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: DASHBOARD_NAME,
   },
 };
 
@@ -53,7 +63,11 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-(--paper) text-(--ink)">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ServiceWorkerRegistration />
+          <PwaInstallBanner />
+        </Providers>
       </body>
     </html>
   );

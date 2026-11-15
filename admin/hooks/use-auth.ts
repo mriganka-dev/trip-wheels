@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, getPublisherProfile, loginUser, logoutUser } from "@/lib/api/auth";
 import { queryKeys } from "@/lib/query-keys";
+import { syncPushSubscriptionIfGranted, unsubscribeFromPush } from "@/lib/push";
 import type { LoginPayload, LoginResponse, PublisherProfile, User, VerificationStatus } from "@/types/auth";
 
 export function useAuth() {
@@ -40,11 +41,19 @@ export function useAuth() {
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.auth.me, data.user);
       queryClient.invalidateQueries({ queryKey: queryKeys.publisher.profile });
+      syncPushSubscriptionIfGranted().catch(() => {});
     },
   });
 
   const logoutMutation = useMutation<void, Error, void>({
-    mutationFn: logoutUser,
+    mutationFn: async () => {
+      try {
+        await unsubscribeFromPush();
+      } catch {
+        // Non-blocking cleanup
+      }
+      return logoutUser();
+    },
     onSuccess: () => {
       queryClient.clear();
       router.push("/login");

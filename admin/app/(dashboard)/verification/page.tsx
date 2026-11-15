@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Clock, FileText, PhoneCall, ShieldAlert, UserCheck } from "lucide-react";
+import {
+  Bell,
+  CheckCircle2,
+  Clock,
+  FileText,
+  PhoneCall,
+  ShieldAlert,
+  Smartphone,
+  UserCheck,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getOwnDocuments, submitVerification } from "@/lib/api/publisher";
 import { ApiError } from "@/lib/api/client";
@@ -12,13 +21,105 @@ import { formatDate } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { AppShell } from "@/components/layout/app-shell";
+import {
+  confirmTestNotification,
+  getPushPermissionState,
+  isPushSupported,
+  sendTestNotification,
+  subscribeToPush,
+} from "@/lib/push";
+import { isIosSafari, isStandalone } from "@/lib/pwa";
 import type { VerificationDocument } from "@/types/verification";
 
 export default function VerificationPage() {
   const { user, profile, refetchProfile, isLoading: isAuthLoading } = useAuth();
+  const { showToast } = useToast();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Push notifications & PWA state
+  const [pushPermission, setPushPermission] = useState<
+    "granted" | "denied" | "default" | "unsupported"
+  >("default");
+  const [isIos, setIsIos] = useState(false);
+  const [isStand, setIsStand] = useState(false);
+  const [isEnablingPush, setIsEnablingPush] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [isConfirmingTest, setIsConfirmingTest] = useState(false);
+  const [testSent, setTestSent] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPushPermission(getPushPermissionState());
+      setIsIos(isIosSafari());
+      setIsStand(isStandalone());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const isNotificationsConfirmed = Boolean(
+    profile?.notificationsTestConfirmedAt
+  );
+
+  const handleTurnOnPush = async () => {
+    setPushError(null);
+    if (!isPushSupported()) {
+      setPushError("Push notifications are not supported on this browser.");
+      return;
+    }
+    setIsEnablingPush(true);
+    try {
+      await subscribeToPush();
+      setPushPermission("granted");
+      showToast("Push notifications enabled.", "brand");
+    } catch (err) {
+      setPushPermission(getPushPermissionState());
+      setPushError(
+        err instanceof Error ? err.message : "Failed to enable notifications."
+      );
+    } finally {
+      setIsEnablingPush(false);
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    setPushError(null);
+    setIsSendingTest(true);
+    try {
+      await sendTestNotification();
+      setTestSent(true);
+      showToast("Test notification sent! Check your device.", "brand");
+    } catch (err) {
+      setPushError(
+        err instanceof Error
+          ? err.message
+          : "Failed to send test notification."
+      );
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
+  const handleConfirmTest = async () => {
+    setPushError(null);
+    setIsConfirmingTest(true);
+    try {
+      await confirmTestNotification();
+      await refetchProfile();
+      showToast("Notification receipt confirmed!", "brand");
+    } catch (err) {
+      setPushError(
+        err instanceof Error
+          ? err.message
+          : "Failed to confirm test notification."
+      );
+    } finally {
+      setIsConfirmingTest(false);
+    }
+  };
 
   const { data: documents = [], refetch: refetchDocs } = useQuery<VerificationDocument[]>({
     queryKey: queryKeys.publisher.documents,
@@ -369,6 +470,135 @@ export default function VerificationPage() {
             <Badge tone={isCallDone ? "brand" : "warning"}>
               {isCallDone ? "Completed" : "Awaiting call"}
             </Badge>
+          </div>
+
+          {/* Item 6 (Agent) or 7 (Individual): App installed and push notifications */}
+          <div className="p-4 flex flex-col gap-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <Bell
+                  className={`w-5 h-5 shrink-0 mt-0.5 ${
+                    isNotificationsConfirmed
+                      ? "text-(--brand)"
+                      : "text-(--ink-soft)/40"
+                  }`}
+                />
+                <div>
+                  <span className="text-sm font-medium text-(--ink)">
+                    {isAgent
+                      ? "6. App installed and notifications"
+                      : "7. App installed and notifications"}
+                  </span>
+                  <p className="text-xs text-(--ink-soft) max-w-md">
+                    Receive immediate booking requests, vehicle confirmation alerts, and trip updates on your device.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                {isNotificationsConfirmed ? (
+                  <Badge tone="brand">Done</Badge>
+                ) : pushPermission === "granted" ? (
+                  <Badge tone="brand">Subscribed</Badge>
+                ) : pushPermission === "denied" ? (
+                  <Badge tone="negative">Blocked</Badge>
+                ) : (
+                  <Badge tone="neutral">Pending</Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="ml-8 rounded border border-(--line) bg-(--surface-soft)/40 p-3 space-y-3">
+              {pushError && (
+                <div className="flex items-start gap-2 text-xs text-(--negative)">
+                  <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{pushError}</span>
+                </div>
+              )}
+
+              {isNotificationsConfirmed ? (
+                <p className="text-xs text-(--ink-soft)">
+                  Push notifications verified and confirmed.
+                  {profile?.notificationsTestConfirmedAt && (
+                    <span>
+                      {" "}
+                      (Confirmed {formatDate(profile.notificationsTestConfirmedAt)})
+                    </span>
+                  )}
+                </p>
+              ) : (
+                <>
+                  {pushPermission !== "granted" ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-(--ink-soft)">
+                        We will alert you when a customer sends a request, when you need to confirm a vehicle, and when something changes on a trip.
+                      </p>
+                      {pushPermission === "denied" ? (
+                        <p className="text-xs text-rose-700">
+                          Notifications are blocked in your browser. Please enable notifications for this site in your browser or device settings.
+                        </p>
+                      ) : isIos && !isStand ? (
+                        <p className="text-xs text-(--ink-soft)">
+                          On iPhone, push alerts require adding the app to your Home Screen first (tap Share in Safari, then select &ldquo;Add to Home Screen&rdquo;).
+                        </p>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          isLoading={isEnablingPush}
+                          onClick={handleTurnOnPush}
+                        >
+                          Turn on notifications
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-xs text-(--ink-soft)">
+                        Push permission granted. Send a test alert to your device to verify delivery, then confirm receipt below.
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          isLoading={isSendingTest}
+                          onClick={handleSendTestNotification}
+                        >
+                          Send a test notification
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          isLoading={isConfirmingTest}
+                          onClick={handleConfirmTest}
+                        >
+                          I received it
+                        </Button>
+
+                        {testSent && (
+                          <span className="text-xs text-(--brand) font-medium self-center">
+                            Test alert dispatched.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {!isStand && (
+                <div className="pt-2 border-t border-(--line) flex items-center gap-2 text-[11px] text-(--ink-soft)">
+                  <Smartphone className="w-3.5 h-3.5 text-(--brand)" />
+                  <span>
+                    Install the partner app on your home screen for rapid access and foreground alerts.
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
