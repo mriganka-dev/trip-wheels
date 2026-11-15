@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { resendOtp, verifyEmail } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
+import { DASHBOARD_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,10 @@ function VerifyEmailForm() {
   const [cooldownSeconds, setCooldownSeconds] = useState(60);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = `Verify your email | ${DASHBOARD_NAME}`;
+  }, []);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;

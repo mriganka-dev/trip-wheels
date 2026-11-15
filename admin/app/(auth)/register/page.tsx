@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { registerUser } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
+import { DASHBOARD_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,11 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    document.title = `Create your partner account | ${DASHBOARD_NAME}`;
+  }, []);
+
   const [rootError, setRootError] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<"agent" | "individual">("agent");
 

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DASHBOARD_NAME } from "@/lib/constants";
 
 export default function ErrorPage({
   error,
@@ -12,6 +13,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
+    document.title = `Something went wrong | ${DASHBOARD_NAME}`;
     // Error logged for development review
     console.error(error);
   }, [error]);

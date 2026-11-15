@@ -1,10 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { RefreshCw, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DASHBOARD_NAME } from "@/lib/constants";
 
 export default function OfflinePage() {
+  useEffect(() => {
+    document.title = `You are offline | ${DASHBOARD_NAME}`;
+  }, []);
+
   const handleRetry = () => {
     if (typeof window !== "undefined") {
       window.location.reload();
