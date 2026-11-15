@@ -1,5 +1,10 @@
 import { apiClient } from "./client";
-import type { Booking, PaginatedBookingsResponse } from "@/types/booking";
+import type {
+  AcceptBookingPayload,
+  Booking,
+  PaginatedBookingsResponse,
+  RejectBookingPayload,
+} from "@/types/booking";
 
 export interface GetReceivedBookingsParams {
   page?: number;
@@ -25,4 +30,24 @@ export async function getReceivedBookings(
 
 export async function getBooking(id: string): Promise<Booking> {
   return apiClient<Booking>(`/bookings/${id}`);
+}
+
+export async function acceptBooking(
+  id: string,
+  payload?: AcceptBookingPayload
+): Promise<Booking> {
+  return apiClient<Booking>(`/bookings/${id}/accept`, {
+    method: "PATCH",
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+export async function rejectBooking(
+  id: string,
+  payload?: RejectBookingPayload
+): Promise<Booking> {
+  return apiClient<Booking>(`/bookings/${id}/reject`, {
+    method: "PATCH",
+    body: JSON.stringify(payload || {}),
+  });
 }

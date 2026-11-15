@@ -64,6 +64,7 @@ export interface PublisherProfile {
     url: string;
     publicId: string;
   };
+  notificationsTestConfirmedAt?: string | null;
   reliability?: {
     score: number;
     requestsReceived: number;
