@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export interface TopBarProps {
   title?: string;
@@ -41,16 +41,10 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
         )}
       </div>
 
-      {/* Actions and Notification Bell Placeholder */}
+      {/* Actions and Notification Bell */}
       <div className="flex items-center gap-3">
         {actions}
-        <Link
-          href="/notifications"
-          aria-label="View notifications"
-          className="relative flex items-center justify-center p-2 rounded-md text-(--ink-soft) hover:text-(--ink) hover:bg-(--paper) transition-colors min-h-[44px] min-w-[44px] focus-visible:outline-2 focus-visible:outline-(--brand)"
-        >
-          <Bell className="w-5 h-5" />
-        </Link>
+        <NotificationBell />
       </div>
     </header>
   );

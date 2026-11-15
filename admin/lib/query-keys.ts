@@ -22,7 +22,11 @@ export const queryKeys = {
     mine: (params?: Record<string, unknown>) => ["issues", "mine", params] as const,
     detail: (id: string) => ["issues", "detail", id] as const,
   },
+  reviews: {
+    publisher: (publisherId: string, params?: Record<string, unknown>) =>
+      ["reviews", "publisher", publisherId, params] as const,
+  },
   notifications: {
-    list: ["notifications", "list"] as const,
+    list: (params?: Record<string, unknown>) => ["notifications", "list", params] as const,
   },
 };

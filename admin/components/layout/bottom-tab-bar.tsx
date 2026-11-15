@@ -3,16 +3,27 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Bell, Calendar, Car, Home, LogOut, Menu } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "@/hooks/use-auth";
 import { BottomSheet, BottomSheetContent } from "@/components/ui/bottom-sheet";
+import { getNotifications } from "@/lib/api/notifications";
+import { queryKeys } from "@/lib/query-keys";
 import { SECONDARY_NAV_ITEMS } from "./nav-items";
 
 export function BottomTabBar() {
   const pathname = usePathname();
   const { logout, isLoggingOut } = useAuth();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  const { data: notifData } = useQuery({
+    queryKey: queryKeys.notifications.list({ limit: 1 }),
+    queryFn: () => getNotifications({ limit: 1 }),
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+  });
+  const unreadCount = notifData?.unreadCount ?? 0;
 
   const tabs = [
     { href: "/", label: "Home", icon: Home },
@@ -45,7 +56,14 @@ export function BottomTabBar() {
                   active ? "text-(--brand) font-semibold" : "text-(--ink-soft) hover:text-(--ink)"
                 )}
               >
-                <Icon className={clsx("w-5 h-5", active ? "text-(--brand)" : "text-(--ink-soft)")} />
+                <div className="relative">
+                  <Icon className={clsx("w-5 h-5", active ? "text-(--brand)" : "text-(--ink-soft)")} />
+                  {tab.href === "/notifications" && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] px-0.5 items-center justify-center rounded-full bg-(--brand) text-[9px] font-bold text-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[11px] leading-none">{tab.label}</span>
               </Link>
             );

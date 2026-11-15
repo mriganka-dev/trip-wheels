@@ -31,6 +31,7 @@ import { CompleteTripDialog } from "@/components/bookings/complete-trip-dialog";
 import { CancelBookingDialog } from "@/components/bookings/cancel-booking-dialog";
 import { ModificationRequestsSection } from "@/components/bookings/modification-requests-section";
 import { HistorySection } from "@/components/bookings/history-section";
+import { RaiseIssueDialog } from "@/components/issues/raise-issue-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { getBooking } from "@/lib/api/bookings";
 import { queryKeys } from "@/lib/query-keys";
@@ -65,6 +66,7 @@ export default function BookingDetailPage() {
 
   const [isAcceptOpen, setIsAcceptOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
+  const [isRaiseIssueOpen, setIsRaiseIssueOpen] = useState(false);
 
   const {
     data: booking,
@@ -242,13 +244,25 @@ export default function BookingDetailPage() {
               </p>
             </div>
 
-            {/* Quiet top action buttons on confirmed bookings before handover */}
-            {isConfirmed && !isPastPickup && (
-              <div className="flex flex-wrap items-center gap-2">
-                <ReportUnavailableDialog booking={booking} />
-                <CancelBookingDialog booking={booking} />
-              </div>
-            )}
+            {/* Quiet top action buttons */}
+            <div className="flex flex-wrap items-center gap-2">
+              {isConfirmed && !isPastPickup && (
+                <>
+                  <ReportUnavailableDialog booking={booking} />
+                  <CancelBookingDialog booking={booking} />
+                </>
+              )}
+              {!isRequested && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsRaiseIssueOpen(true)}
+                  className="text-(--ink-soft) hover:text-(--ink)"
+                >
+                  Report issue
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* "What you need to do now" action bar */}
@@ -661,6 +675,14 @@ export default function BookingDetailPage() {
         booking={booking}
         isOpen={isRejectOpen}
         onClose={() => setIsRejectOpen(false)}
+        onSuccess={() => refetch()}
+      />
+
+      <RaiseIssueDialog
+        bookingId={booking._id}
+        bookingCode={booking.bookingCode}
+        isOpen={isRaiseIssueOpen}
+        onClose={() => setIsRaiseIssueOpen(false)}
         onSuccess={() => refetch()}
       />
     </AppShell>

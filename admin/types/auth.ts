@@ -1,6 +1,12 @@
 export type UserRole = "customer" | "agent" | "individual" | "admin";
 export type AccountStatus = "active" | "suspended";
 
+export interface NotificationPreferences {
+  inApp: boolean;
+  email: boolean;
+  push: boolean;
+}
+
 export interface User {
   _id: string;
   fullName: string;
@@ -13,10 +19,21 @@ export interface User {
     url: string;
     publicId: string;
   };
+  notificationPreferences?: NotificationPreferences;
   suspendedReason?: string;
   suspendedAt?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface UpdateProfilePayload {
+  fullName?: string;
+  phone?: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export type VerificationStatus =

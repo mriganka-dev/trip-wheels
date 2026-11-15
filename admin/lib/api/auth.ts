@@ -1,12 +1,15 @@
 import { apiClient, ApiError } from "./client";
 import type {
+  ChangePasswordPayload,
   ForgotPasswordPayload,
   LoginPayload,
   LoginResponse,
+  NotificationPreferences,
   PublisherProfile,
   RegisterPayload,
   ResendOtpPayload,
   ResetPasswordPayload,
+  UpdateProfilePayload,
   User,
   VerifyEmailPayload,
 } from "@/types/auth";
@@ -72,4 +75,34 @@ export async function getPublisherProfile(): Promise<PublisherProfile | null> {
     }
     throw error;
   }
+}
+
+export async function updateUserProfile(payload: UpdateProfilePayload): Promise<User> {
+  return apiClient<User>("/users/me", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function uploadAvatar(formData: FormData): Promise<User> {
+  return apiClient<User>("/users/me/avatar", {
+    method: "PATCH",
+    body: formData,
+  });
+}
+
+export async function updateNotificationPreferences(
+  payload: Partial<NotificationPreferences>
+): Promise<User> {
+  return apiClient<User>("/users/me/notification-preferences", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<void> {
+  return apiClient<void>("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
