@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trip Wheels Super Admin
 
-## Getting Started
+Trip Wheels Super Admin is the private operations console used by the platform team to oversee and operate the vehicle rental marketplace. It handles publisher verifications, vehicle moderation, booking oversight, customer issue resolution, platform watchlists, destination settings, and audit logs.
 
-First, run the development server:
+## Scope and Separation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Trip Wheels consists of distinct applications:
+1. Customer Website (`frontend/`): Public discovery, vehicle search, customer booking checkout, and traveler profiles.
+2. Agent Dashboard (`admin/`): Operational portal for rental shop partners and individual vehicle owners to manage fleet, calendar, requests, and handovers.
+3. Super Admin Console (`super-admin/`, this app): Private console for the platform operations team.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This console does not handle customer booking checkout, payment processing, or commissions. Payments are settled directly between customer and vehicle owner at pickup.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Required environment variables are set in the `.env` file and validated at runtime in `lib/env.ts`. No environment values or secrets are stored in version control or exposed to the client browser.
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js (App Router) with TypeScript in strict mode
+- Tailwind CSS with custom design tokens
+- TanStack React Query for client data fetching
+- React Hook Form with Zod schemas
+- Date-fns and Intl APIs (en-IN locale)
+- Radix UI primitives for dialogs and popovers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Available Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev`: Starts the local development server.
+- `npm run build`: Compiles and builds the production application.
+- `npm run start`: Runs the built production application.
+- `npm run lint`: Runs ESLint checks.
+- `npm run check:style`: Audits the codebase for strict styling rules (no gradients, em dashes, or emoji).
+- `npm run check:env`: Verifies environment hygiene and secret protections.
