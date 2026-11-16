@@ -14,7 +14,7 @@
     "seed:demo": "node scripts/seedDemo.js",
     "sync:indexes": "node scripts/syncIndexes.js",
     "migrate:phone-index": "node scripts/migratePhoneIndex.js",
-    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js && node tests/trust.test.js && node tests/admin.test.js && node tests/hardening.test.js && node tests/google.plan1.test.js",
+    "test": "node tests/foundation.test.js && node tests/auth.test.js && node tests/publisher.test.js && node tests/vehicle.test.js && node tests/notification.test.js && node tests/booking.test.js && node tests/trust.test.js && node tests/admin.test.js && node tests/hardening.test.js && node tests/google.plan1.test.js && node tests/google.plan2.test.js",
     "test:ci": "npm test"
   },
   "dependencies": {

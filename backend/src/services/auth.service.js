@@ -177,6 +177,17 @@ export const verifyEmail = async ({ email, otp }) => {
   return user;
 };
 
+export const createSession = async (user) => {
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+
+  user.refreshToken = refreshToken;
+  user.lastLoginAt = new Date();
+  await user.save();
+
+  return { accessToken, refreshToken };
+};
+
 export const login = async ({ emailOrPhone, password }) => {
   const identifier = emailOrPhone.trim();
   let query = {};
@@ -210,12 +221,7 @@ export const login = async ({ emailOrPhone, password }) => {
     throw new ApiError(401, "Invalid email/phone or password");
   }
 
-  const accessToken = user.generateAccessToken();
-  const refreshToken = user.generateRefreshToken();
-
-  user.refreshToken = refreshToken;
-  user.lastLoginAt = new Date();
-  await user.save();
+  const { accessToken, refreshToken } = await createSession(user);
 
   const userResponse = await User.findById(user._id).select(
     "-password -refreshToken"
