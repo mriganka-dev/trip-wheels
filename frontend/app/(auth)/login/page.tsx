@@ -11,6 +11,8 @@ import { getSafeRedirectUrl } from "@/lib/safe-redirect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
+import { GoogleButton } from "@/components/auth/google-button";
+import { OAuthErrorMessage } from "@/components/auth/oauth-error-message";
 import { useAuth } from "@/hooks/use-auth";
 
 function LoginForm() {
@@ -84,6 +86,8 @@ function LoginForm() {
         </div>
       )}
 
+      <OAuthErrorMessage />
+
       {serverError && (
         <div
           role="alert"
@@ -144,6 +148,19 @@ function LoginForm() {
           </Button>
         </div>
       </form>
+
+      <div className="relative my-6 text-center text-xs text-(--ink-soft)">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-(--line)" />
+        </div>
+        <span className="relative bg-(--surface) px-2 text-(--ink-soft)">or</span>
+      </div>
+
+      <GoogleButton mode="login" next={nextParam} />
+
+      <p className="mt-3 text-center text-xs text-(--ink-soft)">
+        If you signed up with Google, use Continue with Google.
+      </p>
 
       <div className="mt-6 border-t border-(--line) pt-4 text-center text-xs text-(--ink-soft)">
         Don&apos;t have an account yet?{" "}

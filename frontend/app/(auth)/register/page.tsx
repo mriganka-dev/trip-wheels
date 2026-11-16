@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerFormSchema, type RegisterFormData } from "@/lib/validations/auth";
@@ -11,9 +11,13 @@ import { ApiError } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
+import { GoogleButton } from "@/components/auth/google-button";
+import { OAuthErrorMessage } from "@/components/auth/oauth-error-message";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get("next");
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -71,6 +75,8 @@ export default function RegisterPage() {
           Sign up to search and request bikes and cars directly from local owners.
         </p>
       </div>
+
+      <OAuthErrorMessage />
 
       {serverError && (
         <div
@@ -179,6 +185,19 @@ export default function RegisterPage() {
         </div>
       </form>
 
+      <div className="relative my-6 text-center text-xs text-(--ink-soft)">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-(--line)" />
+        </div>
+        <span className="relative bg-(--surface) px-2 text-(--ink-soft)">or</span>
+      </div>
+
+      <GoogleButton mode="register" next={nextParam} />
+
+      <p className="mt-3 text-center text-xs text-(--ink-soft)">
+        If you signed up with Google, use Continue with Google.
+      </p>
+
       <div className="mt-6 border-t border-(--line) pt-4 text-center text-xs text-(--ink-soft)">
         Already have an account?{" "}
         <Link
@@ -192,3 +211,16 @@ export default function RegisterPage() {
   );
 }
 
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="rounded-md border border-(--line) bg-(--surface) p-8 text-center text-xs text-(--ink-soft)">
+          Loading registration form...
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
+  );
+}

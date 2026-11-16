@@ -119,4 +119,21 @@ export const ISSUE_STATUS_CONFIG: Record<string, StatusMeta> = {
   },
 };
 
+export const OAUTH_CUSTOMER_ERROR_MESSAGES: Record<string, string> = {
+  google_cancelled:
+    "Google sign-in was cancelled. You can try again or use your email and password.",
+  google_failed: "We could not sign you in with Google. Please try again.",
+  google_email_unverified:
+    "The email on that Google account is not verified, so it cannot be used here.",
+  account_suspended: "This account is suspended. Please contact support.",
+  wrong_app:
+    "This email belongs to an agent or owner account, so it cannot sign in here.",
+  google_unavailable:
+    "Google sign-in is not available right now. Use your email and password.",
+};
+
+export const DEFAULT_OAUTH_CUSTOMER_ERROR =
+  OAUTH_CUSTOMER_ERROR_MESSAGES.google_failed;
+
+
 

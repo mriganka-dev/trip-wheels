@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -488,58 +489,73 @@ function ProfileContent({
             <h2 className="font-serif text-lg font-bold text-ink mb-1">
               Change Password
             </h2>
-            <p className="text-xs text-ink-muted mb-4">
-              Keep your account secure by choosing a strong password.
-            </p>
-
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <Field label="Current Password" htmlFor="current-pw" required>
-                <Input
-                  id="current-pw"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  disabled={isChangingPassword}
-                />
-              </Field>
-
-              <Field label="New Password" htmlFor="new-pw" required>
-                <Input
-                  id="new-pw"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  disabled={isChangingPassword}
-                />
-                <span className="text-[11px] text-ink-muted mt-1">
-                  At least 8 characters with at least one letter and one number.
-                </span>
-              </Field>
-
-              {passwordSuccess && (
-                <div className="rounded border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">
-                  {passwordSuccess}
-                </div>
-              )}
-
-              {passwordError && (
-                <div className="rounded border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800">
-                  {passwordError}
-                </div>
-              )}
-
-              <div className="pt-2 flex justify-end">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  isLoading={isChangingPassword}
+            {user.hasPassword === false ? (
+              <p className="text-xs text-ink-muted">
+                You signed in with Google. To add a password, use{" "}
+                <Link
+                  href="/forgot-password"
+                  className="font-medium text-(--brand) hover:text-(--brand-dark) underline underline-offset-2"
                 >
-                  Update Password
-                </Button>
-              </div>
-            </form>
+                  Reset password
+                </Link>
+                .
+              </p>
+            ) : (
+              <>
+                <p className="text-xs text-ink-muted mb-4">
+                  Keep your account secure by choosing a strong password.
+                </p>
+
+                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                  <Field label="Current Password" htmlFor="current-pw" required>
+                    <Input
+                      id="current-pw"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      required
+                      disabled={isChangingPassword}
+                    />
+                  </Field>
+
+                  <Field label="New Password" htmlFor="new-pw" required>
+                    <Input
+                      id="new-pw"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      disabled={isChangingPassword}
+                    />
+                    <span className="text-[11px] text-ink-muted mt-1">
+                      At least 8 characters with at least one letter and one number.
+                    </span>
+                  </Field>
+
+                  {passwordSuccess && (
+                    <div className="rounded border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">
+                      {passwordSuccess}
+                    </div>
+                  )}
+
+                  {passwordError && (
+                    <div className="rounded border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800">
+                      {passwordError}
+                    </div>
+                  )}
+
+                  <div className="pt-2 flex justify-end">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      isLoading={isChangingPassword}
+                    >
+                      Update Password
+                    </Button>
+                  </div>
+                </form>
+              </>
+            )}
           </section>
 
           {/* Sign Out */}

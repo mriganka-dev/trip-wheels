@@ -23,6 +23,9 @@ export interface User {
     score: number;
     cancellations: number;
   };
+  profileComplete?: boolean;
+  authProviders?: string[];
+  hasPassword?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -65,4 +68,10 @@ export interface ResetPasswordPayload {
   otp: string;
   newPassword: string;
 }
+
+export interface CompleteProfilePayload {
+  phone: string;
+  fullName?: string;
+}
+
 
