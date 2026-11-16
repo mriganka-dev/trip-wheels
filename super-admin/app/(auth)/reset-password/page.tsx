@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { DigitBoxes } from "@/components/ui/digit-boxes";
 import { resendOtp, resetPassword } from "@/lib/api/auth";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiError } from "@/lib/api/client";
 import { APP_NAME } from "@/lib/constants";
 
@@ -37,6 +38,7 @@ const resetPasswordSchema = z
 type ResetFormData = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordPage() {
+  usePageTitle("Reset your password");
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialEmail = searchParams.get("email") || "";

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ErrorState } from "@/components/ui/error-state";
+import { usePageTitle } from "@/hooks/use-page-title";
 
 const ACTION_OPTIONS = [
   { label: "All actions", value: "all" },
@@ -48,6 +49,7 @@ const TARGET_TYPE_OPTIONS = [
 ];
 
 export default function AuditLogPage() {
+  usePageTitle("Audit log");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(15);
   const [action, setAction] = useState("all");

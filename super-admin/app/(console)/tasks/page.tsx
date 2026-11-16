@@ -17,6 +17,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/use-auth";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { getAdminTasks, updateAdminTask } from "@/lib/api/tasks";
 import {
   getTaskStatusMeta,
@@ -28,6 +29,7 @@ import { queryKeys } from "@/lib/query-keys";
 import type { AdminTask, TaskStatus, UpdateTaskPayload } from "@/types/tasks";
 
 export default function TasksPage() {
+  usePageTitle("Tasks");
   const { user } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { useAuth } from "@/hooks/use-auth";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiError } from "@/lib/api/client";
 import { APP_NAME } from "@/lib/constants";
 
@@ -21,6 +22,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  usePageTitle("Sign in");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();

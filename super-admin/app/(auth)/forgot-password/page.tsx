@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { forgotPassword } from "@/lib/api/auth";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiError } from "@/lib/api/client";
 import { APP_NAME } from "@/lib/constants";
 
@@ -20,6 +21,7 @@ const forgotSchema = z.object({
 type ForgotFormData = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordPage() {
+  usePageTitle("Reset your password");
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 

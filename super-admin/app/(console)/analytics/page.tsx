@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePageTitle } from "@/hooks/use-page-title";
 
 type DatePreset = "7d" | "30d" | "month" | "custom";
 type SortField = "name" | "state" | "totalRequests" | "completedBookings" | "activeVehicles";
@@ -31,6 +32,7 @@ interface OverviewMetricRow {
 }
 
 export default function AnalyticsPage() {
+  usePageTitle("Analytics");
   const [preset, setPreset] = useState<DatePreset>("30d");
   const [customFrom, setCustomFrom] = useState(
     format(subDays(new Date(), 30), "yyyy-MM-dd")

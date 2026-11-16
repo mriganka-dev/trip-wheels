@@ -11,6 +11,7 @@ import { Field } from "@/components/ui/field";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/use-auth";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiError } from "@/lib/api/client";
 import { formatDateTime } from "@/lib/format";
 
@@ -39,6 +40,7 @@ type ProfileDetailsFormData = z.infer<typeof profileDetailsSchema>;
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
 export default function ProfilePage() {
+  usePageTitle("Your profile");
   const { user, updateProfile, uploadAvatar, changePassword, logout } = useAuth();
   const { showToast } = useToast();
 

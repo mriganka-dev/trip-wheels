@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiError } from "@/lib/api/client";
 
 interface FormState {
@@ -189,6 +190,7 @@ function getInitialFormState(settings: PlatformSettings): FormState {
 }
 
 export default function SettingsPage() {
+  usePageTitle("Settings");
   const {
     data: settings,
     isLoading,

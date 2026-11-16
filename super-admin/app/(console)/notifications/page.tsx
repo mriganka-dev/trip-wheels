@@ -17,10 +17,12 @@ import {
 import { getNotificationLink } from "@/components/notifications/notification-bell";
 import { queryKeys } from "@/lib/query-keys";
 import { formatWaitingFor } from "@/lib/format";
+import { usePageTitle } from "@/hooks/use-page-title";
 import type { NotificationItem } from "@/types/notifications";
 import { clsx } from "clsx";
 
 export default function NotificationsPage() {
+  usePageTitle("Notifications");
   const router = useRouter();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);

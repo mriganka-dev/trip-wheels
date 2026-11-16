@@ -13,6 +13,7 @@ export function useIdleTimeout({
   isPaused = false,
 }: UseIdleTimeoutOptions) {
   const [isWarningOpen, setIsWarningOpen] = useState(false);
+  const isWarningOpenRef = useRef(false);
 
   const warningTimeoutMs = Math.max((IDLE_TIMEOUT_MINUTES - 1) * 60 * 1000, 1000);
 
@@ -26,6 +27,7 @@ export function useIdleTimeout({
 
   const triggerSignOut = useCallback(() => {
     clearTimers();
+    isWarningOpenRef.current = false;
     setIsWarningOpen(false);
     onSignOut();
   }, [clearTimers, onSignOut]);
@@ -35,6 +37,7 @@ export function useIdleTimeout({
     if (isPaused) return;
 
     warningTimerRef.current = setTimeout(() => {
+      isWarningOpenRef.current = true;
       setIsWarningOpen(true);
       signoutTimerRef.current = setTimeout(() => {
         triggerSignOut();
@@ -43,6 +46,7 @@ export function useIdleTimeout({
   }, [clearTimers, isPaused, triggerSignOut, warningTimeoutMs]);
 
   const staySignedIn = useCallback(() => {
+    isWarningOpenRef.current = false;
     setIsWarningOpen(false);
     startTimers();
   }, [startTimers]);
@@ -57,7 +61,7 @@ export function useIdleTimeout({
 
     const handleActivity = () => {
       // Only reset timer if warning dialog is not already open
-      if (!isWarningOpen) {
+      if (!isWarningOpenRef.current) {
         startTimers();
       }
     };
@@ -73,7 +77,7 @@ export function useIdleTimeout({
         window.removeEventListener(evt, handleActivity);
       }
     };
-  }, [clearTimers, isPaused, isWarningOpen, startTimers]);
+  }, [clearTimers, isPaused, startTimers]);
 
   return {
     isWarningOpen,
