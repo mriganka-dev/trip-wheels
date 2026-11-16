@@ -106,6 +106,7 @@ router.patch(
 
 // Vehicle Moderation
 router.get("/vehicles", adminController.getAdminVehicles);
+router.get("/vehicles/:id", adminController.getAdminVehicleById);
 
 router.patch("/vehicles/:id/approve", adminController.approveVehicle);
 
