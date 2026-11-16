@@ -16,6 +16,7 @@ import { VehicleUnavailability } from "../models/vehicleUnavailability.model.js"
 import { ApiError } from "../utils/ApiError.js";
 import {
   deleteFromCloudinary,
+  generateSignedCloudinaryUrl,
   uploadOnCloudinary,
   uploadPrivateOnCloudinary,
 } from "../utils/cloudinary.js";
@@ -626,14 +627,33 @@ export const getAdminVehicles = async (query = {}) => {
   const { page, limit, skip } = getPagination(query);
   const filter = { isDeleted: false };
 
-  if (query.status) {
+  if (query.status && query.status !== "all") {
     filter.status = query.status;
+  }
+  if (query.type && query.type !== "all") {
+    filter.type = query.type;
+  }
+  if (query.destination && query.destination !== "all") {
+    filter.destination = query.destination;
+  }
+  if (query.publisher) {
+    filter.publisher = query.publisher;
+  }
+  if (query.search) {
+    const s = query.search.trim();
+    filter.$or = [
+      { brand: { $regex: s, $options: "i" } },
+      { model: { $regex: s, $options: "i" } },
+      { registrationNumber: { $regex: s, $options: "i" } },
+    ];
   }
 
   const [items, totalItems] = await Promise.all([
     Vehicle.find(filter)
-      .populate("publisher", "fullName email phone")
-      .populate("destination", "name slug")
+      .select("+chassisNumber +registrationNumber")
+      .populate("publisher", "fullName email phone role accountStatus")
+      .populate("destination", "name slug state")
+      .populate("publisherProfile", "publisherType reliability flags verificationStatus")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),
@@ -641,6 +661,41 @@ export const getAdminVehicles = async (query = {}) => {
   ]);
 
   return formatPaginatedResponse({ items, totalItems, page, limit });
+};
+
+export const adminGetVehicleById = async (vehicleId) => {
+  const vehicle = await Vehicle.findOne({ _id: vehicleId, isDeleted: false })
+    .select("+chassisNumber +registrationNumber")
+    .populate("publisher", "fullName email phone role accountStatus createdAt")
+    .populate("destination", "name slug state")
+    .populate("publisherProfile");
+
+  if (!vehicle) {
+    throw new ApiError(404, "Vehicle not found");
+  }
+
+  const vehicleObj = vehicle.toObject();
+
+  if (vehicleObj.rc?.file?.publicId) {
+    vehicleObj.rc.file.url = generateSignedCloudinaryUrl(
+      vehicleObj.rc.file.publicId,
+      300
+    );
+  }
+  if (vehicleObj.insurance?.file?.publicId) {
+    vehicleObj.insurance.file.url = generateSignedCloudinaryUrl(
+      vehicleObj.insurance.file.publicId,
+      300
+    );
+  }
+  if (vehicleObj.noc?.file?.publicId) {
+    vehicleObj.noc.file.url = generateSignedCloudinaryUrl(
+      vehicleObj.noc.file.publicId,
+      300
+    );
+  }
+
+  return vehicleObj;
 };
 
 export const adminApproveVehicle = async (vehicleId) => {

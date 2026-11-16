@@ -223,6 +223,13 @@ export const getAdminVehicles = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "Admin vehicles list fetched"));
 });
 
+export const getAdminVehicleById = asyncHandler(async (req, res) => {
+  const vehicle = await vehicleService.adminGetVehicleById(req.params.id);
+  res
+    .status(200)
+    .json(new ApiResponse(200, vehicle, "Admin vehicle details fetched"));
+});
+
 export const approveVehicle = asyncHandler(async (req, res) => {
   const vehicle = await vehicleService.adminApproveVehicle(req.params.id);
 
