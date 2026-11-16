@@ -48,6 +48,18 @@ export const ISSUE_STATUS_META: Record<string, StatusMeta> = {
   dismissed: { label: "Dismissed", tone: "neutral" },
 };
 
+export const ACCOUNT_STATUS_META: Record<string, StatusMeta> = {
+  active: { label: "Active", tone: "brand" },
+  suspended: { label: "Suspended", tone: "negative" },
+};
+
+export const ROLE_LABELS: Record<string, string> = {
+  customer: "Customer",
+  agent: "Agent",
+  individual: "Individual",
+  admin: "Admin",
+};
+
 export const TASK_STATUS_META: Record<string, StatusMeta> = {
   open: { label: "Open", tone: "warning" },
   in_progress: { label: "In progress", tone: "brand" },
@@ -138,4 +150,12 @@ export function getDocumentStatusMeta(status: string): StatusMeta {
 
 export function getDocumentTypeLabel(type: string): string {
   return DOCUMENT_TYPE_LABELS[type] || type;
+}
+
+export function getAccountStatusMeta(status: string): StatusMeta {
+  return ACCOUNT_STATUS_META[status] || { label: status, tone: "neutral" };
+}
+
+export function getRoleLabel(role: string): string {
+  return ROLE_LABELS[role] || role;
 }
