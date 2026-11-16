@@ -125,6 +125,15 @@ export const register = async ({
 
   const existingEmail = await User.findOne({ email: normalizedEmail });
   if (existingEmail) {
+    if (
+      existingEmail.authProviders?.includes("google") &&
+      !existingEmail.authProviders?.includes("password")
+    ) {
+      throw new ApiError(
+        409,
+        "An account with this email was created using Google. Please sign in with Google or reset your password."
+      );
+    }
     throw new ApiError(409, "User with this email already exists");
   }
 
@@ -139,6 +148,8 @@ export const register = async ({
     phone: normalizedPhoneNumber,
     password,
     role,
+    authProviders: ["password"],
+    profileComplete: true,
   });
 
   await createAndSendOtp(normalizedEmail, "verify_email");
@@ -289,6 +300,9 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
 
   user.password = newPassword;
   user.refreshToken = undefined;
+  if (!user.authProviders?.includes("password")) {
+    user.authProviders = [...(user.authProviders || []), "password"];
+  }
   await user.save();
 
   return true;
@@ -302,6 +316,13 @@ export const changePassword = async ({
   const user = await User.findById(userId).select("+password");
   if (!user) {
     throw new ApiError(404, "User not found");
+  }
+
+  if (!user.password) {
+    throw new ApiError(
+      400,
+      "This account does not have a password set. Please use reset password."
+    );
   }
 
   const isPasswordValid = await user.isPasswordCorrect(currentPassword);

@@ -40,6 +40,11 @@ const envSchema = z
       .default(true)
       .transform((val) => val === true || val === "true"),
     JOYTRIPS_BASE_URL: z.string().default("https://joytrips.example.com"),
+    GOOGLE_CLIENT_ID: z.string().default(""),
+    GOOGLE_CLIENT_SECRET: z.string().default(""),
+    GOOGLE_REDIRECT_URI_CUSTOMER: z.string().default(""),
+    GOOGLE_REDIRECT_URI_AGENT: z.string().default(""),
+    GOOGLE_STATE_SECRET: z.string().default(""),
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV === "production") {
@@ -77,4 +82,20 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = Object.freeze(parsed.data);
+export const isGoogleEnabled = (target = parsed.data) => {
+  const current = target || parsed.data;
+  return Boolean(
+    current.GOOGLE_CLIENT_ID?.trim() &&
+    current.GOOGLE_CLIENT_SECRET?.trim() &&
+    current.GOOGLE_REDIRECT_URI_CUSTOMER?.trim() &&
+    current.GOOGLE_REDIRECT_URI_AGENT?.trim() &&
+    current.GOOGLE_STATE_SECRET?.trim()
+  );
+};
+
+export const googleEnabled = (target = parsed.data) => isGoogleEnabled(target);
+
+export const env = Object.freeze({
+  ...parsed.data,
+  googleEnabled: isGoogleEnabled(parsed.data),
+});

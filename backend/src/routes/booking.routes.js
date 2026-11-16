@@ -7,6 +7,7 @@ import {
   authorizeRoles,
   requireActiveAccount,
   requireEmailVerified,
+  requireProfileComplete,
   verifyJWT,
 } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -39,6 +40,7 @@ router.post(
   "/",
   authorizeRoles(ROLES.CUSTOMER),
   requireEmailVerified,
+  requireProfileComplete,
   validate({ body: createBookingSchema }),
   bookingController.createBooking
 );

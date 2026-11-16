@@ -5,6 +5,7 @@ import * as reviewController from "../controllers/review.controller.js";
 import {
   authorizeRoles,
   requireActiveAccount,
+  requireProfileComplete,
   verifyJWT,
 } from "../middlewares/auth.middleware.js";
 import {
@@ -35,6 +36,7 @@ router.use(
 
 router.put(
   "/profile",
+  requireProfileComplete,
   validate({ body: updatePublisherProfileSchema }),
   publisherController.updateProfile
 );
@@ -43,6 +45,7 @@ router.get("/profile/me", publisherController.getOwnProfile);
 
 router.post(
   "/documents",
+  requireProfileComplete,
   upload.single("file"),
   checkFileSizeLimits,
   validate({ body: uploadDocumentSchema }),
@@ -51,16 +54,25 @@ router.post(
 
 router.get("/documents/me", publisherController.getOwnDocuments);
 
-router.delete("/documents/:id", publisherController.deleteDocument);
+router.delete(
+  "/documents/:id",
+  requireProfileComplete,
+  publisherController.deleteDocument
+);
 
 router.post(
   "/selfie",
+  requireProfileComplete,
   authorizeRoles(ROLES.INDIVIDUAL),
   upload.single("selfie"),
   checkFileSizeLimits,
   publisherController.uploadSelfie
 );
 
-router.post("/submit-verification", publisherController.submitVerification);
+router.post(
+  "/submit-verification",
+  requireProfileComplete,
+  publisherController.submitVerification
+);
 
 export default router;
