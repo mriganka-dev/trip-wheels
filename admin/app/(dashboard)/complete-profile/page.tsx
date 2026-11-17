@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { completeProfile } from "@/lib/api/auth";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, isApiError } from "@/lib/api/client";
 import { DASHBOARD_NAME } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -84,23 +84,43 @@ function CompleteProfileForm() {
         phone: formattedPhone,
       });
 
-      await refetchUser();
-      router.push("/verification");
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (
-          err.statusCode === 409 ||
-          err.message.toLowerCase().includes("phone number is already in use")
-        ) {
-          setError("phone", {
-            message: err.message || "Phone number is already in use",
-          });
-          return;
-        }
-        setRootError(err.message || "Could not complete profile. Please try again.");
-      } else {
-        setRootError("Unable to connect to the server. Please check your network.");
+      if (refetchUser) {
+        await refetchUser();
       }
+      router.push("/verification");
+    } catch (err: unknown) {
+      console.error("Complete profile error:", err);
+      const apiErr = isApiError(err) ? err : null;
+      const genericErr = err instanceof Error ? err : null;
+      const message =
+        apiErr?.message ||
+        genericErr?.message ||
+        (typeof err === "object" && err && "message" in err
+          ? String((err as { message: unknown }).message)
+          : null) ||
+        (typeof err === "string" ? err : null) ||
+        "Could not complete profile. Please try again.";
+
+      if (
+        apiErr?.statusCode === 409 ||
+        message.toLowerCase().includes("phone number is already in use")
+      ) {
+        setError("phone", {
+          message: message || "Phone number is already in use",
+        });
+        return;
+      }
+
+      // If profile is already marked complete, redirect directly to verification
+      if (
+        message.toLowerCase().includes("already complete") ||
+        (apiErr?.statusCode === 400 && message.toLowerCase().includes("already complete"))
+      ) {
+        router.push("/verification");
+        return;
+      }
+
+      setRootError(message);
     }
   };
 

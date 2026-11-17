@@ -175,11 +175,17 @@ export const handleGoogleCallback = async ({
   }
 
   const savedState = verifyStateToken(rawStateCookie);
-  if (!savedState || !state || savedState.state !== state) {
+  if (!savedState) {
+    console.error("[GOOGLE_AUTH_ERROR] State cookie missing or invalid token. rawStateCookie:", rawStateCookie);
+    return { redirectUrl: "/login?error=google_failed" };
+  }
+  if (!state || savedState.state !== state) {
+    console.error("[GOOGLE_AUTH_ERROR] State mismatch. query state:", state, "saved state:", savedState?.state);
     return { redirectUrl: "/login?error=google_failed" };
   }
 
   if (!code) {
+    console.error("[GOOGLE_AUTH_ERROR] Code parameter missing from callback");
     return { redirectUrl: "/login?error=google_failed" };
   }
 
@@ -205,6 +211,7 @@ export const handleGoogleCallback = async ({
   }
 
   if (!payload || payload.nonce !== savedState.nonce) {
+    console.error("[GOOGLE_AUTH_ERROR] Nonce mismatch. token payload nonce:", payload?.nonce, "saved nonce:", savedState?.nonce);
     return { redirectUrl: "/login?error=google_failed" };
   }
 
@@ -212,6 +219,7 @@ export const handleGoogleCallback = async ({
     payload.iss !== "https://accounts.google.com" &&
     payload.iss !== "accounts.google.com"
   ) {
+    console.error("[GOOGLE_AUTH_ERROR] Issuer mismatch. payload iss:", payload?.iss);
     return { redirectUrl: "/login?error=google_failed" };
   }
 

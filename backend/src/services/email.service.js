@@ -44,6 +44,11 @@ export const sendEmail = async ({ to, subject, text, html }) => {
     return { sent: true, messageId: info.messageId };
   } catch (error) {
     console.error("Failed to send email:", error.message);
+    if (env.NODE_ENV !== "production") {
+      console.log(
+        `[DEV EMAIL FALLBACK] To: ${to} | Subject: ${subject}\n${text || html}`
+      );
+    }
     return { sent: false, error: error.message };
   }
 };

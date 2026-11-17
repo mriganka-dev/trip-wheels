@@ -1,5 +1,5 @@
 // Trip Wheels Service Worker
-const CACHE_NAME = "trip-wheels-static-v1";
+const CACHE_NAME = "trip-wheels-static-v2";
 const OFFLINE_URL = "/offline";
 
 const PRECACHE_ASSETS = [
@@ -12,11 +12,11 @@ const PRECACHE_ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -41,8 +41,8 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  // Hard rule: NEVER cache API responses
-  if (url.pathname.startsWith("/api/")) {
+  // Hard rule: NEVER cache API responses or Next.js build/dev chunks
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/_next/")) {
     return;
   }
 
@@ -58,10 +58,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets (images, icons, cached shell)
+  // Static assets (images and icons only, never scripts/chunks)
   if (
     url.pathname.startsWith("/icons/") ||
-    url.pathname.startsWith("/_next/static/") ||
     url.pathname === "/favicon.ico" ||
     url.pathname === "/apple-touch-icon.png"
   ) {

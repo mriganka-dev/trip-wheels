@@ -276,6 +276,15 @@ const run = async () => {
       throw new Error(`New customer should redirect to /complete-profile with next query param, got: ${newCustLoc}`);
     }
     if (
+      newCustLoc.includes("token") ||
+      newCustLoc.includes("code") ||
+      newCustLoc.includes("googleId") ||
+      newCustLoc.includes("google_sub") ||
+      newCustLoc.includes("#")
+    ) {
+      throw new Error(`Redirect URL must not expose tokens, codes, googleId or hash: ${newCustLoc}`);
+    }
+    if (
       createdUserDoc.role !== ROLES.CUSTOMER ||
       createdUserDoc.profileComplete !== false ||
       !createdUserDoc.authProviders.includes("google") ||

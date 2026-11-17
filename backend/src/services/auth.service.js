@@ -63,6 +63,10 @@ export const createAndSendOtp = async (email, purpose) => {
     expiresAt,
   });
 
+  if (env.NODE_ENV !== "production") {
+    console.log(`[AUTH OTP DEV] Purpose: ${purpose} | Email: ${normalizedEmail} | OTP Code: ${code}`);
+  }
+
   await sendOtpEmail(normalizedEmail, code, purpose);
   return { success: true };
 };
