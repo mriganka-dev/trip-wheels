@@ -1,3 +1,4 @@
+import fs from "fs";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import { env, googleEnabled } from "../config/env.js";
@@ -171,20 +172,24 @@ export const handleGoogleCallback = async ({
   rawStateCookie,
 }) => {
   if (error) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] error received: ${error}\n`);
     return { redirectUrl: "/login?error=google_cancelled" };
   }
 
   const savedState = verifyStateToken(rawStateCookie);
   if (!savedState) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] State cookie missing or invalid token. rawStateCookie: ${rawStateCookie}\n`);
     console.error("[GOOGLE_AUTH_ERROR] State cookie missing or invalid token. rawStateCookie:", rawStateCookie);
     return { redirectUrl: "/login?error=google_failed" };
   }
   if (!state || savedState.state !== state) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] State mismatch. query state: ${state}, saved state: ${savedState?.state}\n`);
     console.error("[GOOGLE_AUTH_ERROR] State mismatch. query state:", state, "saved state:", savedState?.state);
     return { redirectUrl: "/login?error=google_failed" };
   }
 
   if (!code) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] Code parameter missing from callback\n`);
     console.error("[GOOGLE_AUTH_ERROR] Code parameter missing from callback");
     return { redirectUrl: "/login?error=google_failed" };
   }
@@ -206,11 +211,13 @@ export const handleGoogleCallback = async ({
     });
     payload = ticket.getPayload();
   } catch (err) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] Token exchange failure: ${err.message}\n`);
     console.error("Google token exchange failure:", err.message);
     return { redirectUrl: "/login?error=google_failed" };
   }
 
   if (!payload || payload.nonce !== savedState.nonce) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] Nonce mismatch. token payload nonce: ${payload?.nonce}, saved nonce: ${savedState?.nonce}\n`);
     console.error("[GOOGLE_AUTH_ERROR] Nonce mismatch. token payload nonce:", payload?.nonce, "saved nonce:", savedState?.nonce);
     return { redirectUrl: "/login?error=google_failed" };
   }
@@ -219,6 +226,7 @@ export const handleGoogleCallback = async ({
     payload.iss !== "https://accounts.google.com" &&
     payload.iss !== "accounts.google.com"
   ) {
+    fs.appendFileSync("google_auth.log", `[GOOGLE_AUTH_ERROR] Issuer mismatch. payload iss: ${payload?.iss}\n`);
     console.error("[GOOGLE_AUTH_ERROR] Issuer mismatch. payload iss:", payload?.iss);
     return { redirectUrl: "/login?error=google_failed" };
   }
