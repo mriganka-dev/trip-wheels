@@ -10,5 +10,5 @@ export default function VehicleDetailLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <>{children}</>;
 }
