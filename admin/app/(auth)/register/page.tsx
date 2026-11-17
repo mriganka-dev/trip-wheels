@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { GoogleButton } from "@/components/auth/google-button";
+import { OAuthErrorMessage } from "@/components/auth/oauth-error-message";
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
@@ -46,15 +48,17 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get("next");
 
   useEffect(() => {
     document.title = `Create your partner account | ${DASHBOARD_NAME}`;
   }, []);
 
   const [rootError, setRootError] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<"agent" | "individual">("agent");
+  const [selectedRole, setSelectedRole] = useState<"agent" | "individual" | "">("");
 
   const {
     register,
@@ -65,7 +69,7 @@ export default function RegisterPage() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      role: "agent",
+      role: undefined,
       fullName: "",
       email: "",
       phone: "",
@@ -124,6 +128,8 @@ export default function RegisterPage() {
           List your vehicles and accept direct booking requests from travelers.
         </p>
       </div>
+
+      <OAuthErrorMessage />
 
       {rootError && (
         <div className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-(--negative)">
@@ -252,6 +258,26 @@ export default function RegisterPage() {
         </div>
       </form>
 
+      <div className="relative my-2 text-center text-xs text-(--ink-soft)">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-(--line)" />
+        </div>
+        <span className="relative bg-(--surface) px-2 text-(--ink-soft)">or</span>
+      </div>
+
+      <GoogleButton
+        mode="register"
+        type={selectedRole ? selectedRole : undefined}
+        disabled={!selectedRole}
+        next={nextPath}
+      />
+
+      {!selectedRole && (
+        <p className="text-center text-xs text-(--ink-soft)">
+          Choose Agent or Individual first.
+        </p>
+      )}
+
       <div className="pt-4 border-t border-(--line) text-center text-sm text-(--ink-soft)">
         Already have a partner account?{" "}
         <Link href="/login" className="font-medium text-(--brand) hover:underline">
@@ -259,5 +285,13 @@ export default function RegisterPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-(--ink-soft)">Loading registration...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

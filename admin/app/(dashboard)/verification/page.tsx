@@ -135,6 +135,7 @@ export default function VerificationPage() {
 
   // Check 1: Email verified
   const isEmailVerified = Boolean(user?.isEmailVerified);
+  const isGoogleUser = Boolean(user?.authProviders?.includes("google"));
 
   // Check 2: Profile completed
   const hasProfile = isAgent
@@ -331,7 +332,7 @@ export default function VerificationPage() {
                   1. Email verified
                 </span>
                 <p className="text-xs text-(--ink-soft)">
-                  {user?.email}
+                  {isGoogleUser ? "Verified automatically with Google" : user?.email}
                 </p>
               </div>
             </div>
@@ -465,6 +466,11 @@ export default function VerificationPage() {
                 <p className="text-xs text-(--ink-soft) max-w-md">
                   Our team will call you on your registered number to confirm it. Approval needs this call.
                 </p>
+                {isGoogleUser && (
+                  <p className="text-xs text-(--ink-soft) max-w-md mt-1">
+                    The verification call confirms the phone number you saved.
+                  </p>
+                )}
               </div>
             </div>
             <Badge tone={isCallDone ? "brand" : "warning"}>

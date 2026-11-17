@@ -31,7 +31,15 @@ export function checkAccess(
     return { status: "blocked", reason: "role_mismatch" };
   }
 
-  // 3. Email verification check
+  // 3. Profile incomplete (new Google account with no phone number)
+  if (user.profileComplete === false) {
+    if (pathname === "/complete-profile") {
+      return { status: "allow" };
+    }
+    return { status: "redirect", to: "/complete-profile" };
+  }
+
+  // 4. Email verification check
   if (!user.isEmailVerified) {
     if (pathname === "/verify-email") {
       return { status: "allow" };
@@ -39,7 +47,7 @@ export function checkAccess(
     return { status: "redirect", to: "/verify-email" };
   }
 
-  // 4. Verification state check
+  // 5. Verification state check
   const isApproved = profile?.verificationStatus === "approved";
   if (!isApproved) {
     const isRestricted = VERIFICATION_REQUIRED_PREFIXES.some(
