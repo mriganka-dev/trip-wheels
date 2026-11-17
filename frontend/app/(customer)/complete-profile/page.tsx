@@ -9,7 +9,7 @@ import {
   type CompleteProfileFormData,
 } from "@/lib/validations/auth";
 import { completeProfile } from "@/lib/api/auth";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, isApiError } from "@/lib/api/client";
 import { getSafeRedirectUrl } from "@/lib/safe-redirect";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -66,26 +66,45 @@ function CompleteProfileForm() {
         phone: formattedPhone,
       });
 
-      await refreshUser();
+      if (refreshUser) {
+        await refreshUser();
+      }
       const destination = getSafeRedirectUrl(nextParam);
       router.push(destination);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (
-          err.statusCode === 409 ||
-          err.message.toLowerCase().includes("phone number is already in use")
-        ) {
-          setError("phone", {
-            message: err.message || "Phone number is already in use",
-          });
-        } else {
-          setServerError(
-            err.message || "Could not complete profile. Please try again."
-          );
-        }
-      } else {
-        setServerError("A network error occurred. Please try again.");
+    } catch (err: unknown) {
+      console.error("Complete profile error:", err);
+      const apiErr = isApiError(err) ? err : null;
+      const genericErr = err instanceof Error ? err : null;
+      const message =
+        apiErr?.message ||
+        genericErr?.message ||
+        (typeof err === "object" && err && "message" in err
+          ? String((err as { message: unknown }).message)
+          : null) ||
+        (typeof err === "string" ? err : null) ||
+        "Could not complete profile. Please try again.";
+
+      if (
+        apiErr?.statusCode === 409 ||
+        message.toLowerCase().includes("phone number is already in use")
+      ) {
+        setError("phone", {
+          message: message || "Phone number is already in use",
+        });
+        return;
       }
+
+      // If profile is already marked complete, redirect directly to destination
+      if (
+        message.toLowerCase().includes("already complete") ||
+        (apiErr?.statusCode === 400 && message.toLowerCase().includes("already complete"))
+      ) {
+        const destination = getSafeRedirectUrl(nextParam);
+        router.push(destination);
+        return;
+      }
+
+      setServerError(message);
     }
   };
 

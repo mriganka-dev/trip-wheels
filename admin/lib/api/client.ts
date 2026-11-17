@@ -6,10 +6,21 @@ export class ApiError extends Error {
 
   constructor(statusCode: number, message: string, errors?: ApiFieldError[]) {
     super(message);
+    Object.setPrototypeOf(this, ApiError.prototype);
     this.name = "ApiError";
     this.statusCode = statusCode;
     this.errors = errors;
   }
+}
+
+export function isApiError(err: unknown): err is ApiError {
+  return (
+    err instanceof ApiError ||
+    (typeof err === "object" &&
+      err !== null &&
+      "statusCode" in err &&
+      typeof (err as { statusCode: unknown }).statusCode === "number")
+  );
 }
 
 let refreshPromise: Promise<boolean> | null = null;

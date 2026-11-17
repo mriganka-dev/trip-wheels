@@ -25,6 +25,11 @@ Partners collect all rental fees and deposits directly from travelers at vehicle
 - npm 10 or higher
 - Running Trip Wheels Backend (`http://localhost:5000` by default)
 
+## Google Login
+
+The Continue with Google button is a plain link to the backend route (/api/v1/auth/google). No external Google script or SDK is loaded in the browser, and no new environment variables are added to the dashboard. The button displays the official Google brand icon located at public/images/google-g.svg with an automatic text-only fallback if the file is missing. During registration, the button remains disabled until an owner type (Agent or Individual) is selected. New Google partners are guided to the Complete your profile page (/complete-profile) to save their mobile number before proceeding to the verification checklist.
+
+
 ## Getting Started
 
 1. Install dependencies:
