@@ -21,6 +21,11 @@ export default function CustomerLayout({
         router.push(`/login?next=${encodeURIComponent(pathname)}`);
       } else if (user.role !== "customer") {
         router.push("/non-customer");
+      } else if (
+        user.profileComplete === false &&
+        pathname !== "/complete-profile"
+      ) {
+        router.push(`/complete-profile?next=${encodeURIComponent(pathname)}`);
       }
     }
   }, [isLoading, isAuthenticated, user, router, pathname]);
@@ -40,6 +45,10 @@ export default function CustomerLayout({
   }
 
   if (!isAuthenticated || !user || user.role !== "customer") {
+    return null;
+  }
+
+  if (user.profileComplete === false && pathname !== "/complete-profile") {
     return null;
   }
 

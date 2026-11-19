@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as authController from "../controllers/auth.controller.js";
+import * as googleController from "../controllers/google.controller.js";
 import {
   requireActiveAccount,
   verifyJWT,
@@ -11,6 +12,7 @@ import {
 import { validate } from "../middlewares/validate.middleware.js";
 import {
   changePasswordSchema,
+  completeProfileSchema,
   forgotPasswordSchema,
   loginSchema,
   refreshTokenSchema,
@@ -21,6 +23,22 @@ import {
 } from "../validators/auth.validator.js";
 
 const router = Router();
+
+router.get("/google", authLimiter, googleController.startGoogleAuth);
+
+router.get(
+  "/google/callback",
+  authLimiter,
+  googleController.handleGoogleCallback
+);
+
+router.post(
+  "/complete-profile",
+  verifyJWT,
+  requireActiveAccount,
+  validate({ body: completeProfileSchema }),
+  googleController.completeProfile
+);
 
 router.post(
   "/register",

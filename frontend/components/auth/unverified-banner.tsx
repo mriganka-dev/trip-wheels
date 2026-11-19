@@ -9,7 +9,12 @@ import { Container } from "@/components/layout/container";
 export function UnverifiedEmailBanner() {
   const { user, isAuthenticated, isEmailVerified } = useAuth();
 
-  if (!isAuthenticated || !user || isEmailVerified) {
+  if (
+    !isAuthenticated ||
+    !user ||
+    isEmailVerified ||
+    user.authProviders?.includes("google")
+  ) {
     return null;
   }
 

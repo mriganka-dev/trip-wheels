@@ -1,16 +1,13 @@
-import React from "react";
-import { clsx } from "clsx";
+import { cn } from "@/lib/utils"
 
-export type SkeletonProps = React.HTMLAttributes<HTMLDivElement>;
-
-export const Skeleton: React.FC<SkeletonProps> = ({ className, ...props }) => {
+function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={clsx(
-        "animate-pulse rounded bg-line/60",
-        className
-      )}
+      data-slot="skeleton"
+      className={cn("cn-skeleton animate-pulse rounded-md bg-muted", className)}
       {...props}
     />
-  );
-};
+  )
+}
+
+export { Skeleton }

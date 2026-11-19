@@ -9,5 +9,5 @@ export default function DocumentsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <>{children}</>;
 }

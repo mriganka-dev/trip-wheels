@@ -12,6 +12,8 @@ import { DASHBOARD_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { GoogleButton } from "@/components/auth/google-button";
+import { OAuthErrorMessage } from "@/components/auth/oauth-error-message";
 
 const loginSchema = z.object({
   emailOrPhone: z.string().trim().min(3, "Enter your email address or mobile number"),
@@ -100,6 +102,8 @@ function LoginForm() {
         </p>
       </div>
 
+      <OAuthErrorMessage />
+
       {rootError && (
         <div className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-(--negative)">
           {rootError}
@@ -157,6 +161,19 @@ function LoginForm() {
           </Button>
         </div>
       </form>
+
+      <div className="relative my-2 text-center text-xs text-(--ink-soft)">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-(--line)" />
+        </div>
+        <span className="relative bg-(--surface) px-2 text-(--ink-soft)">or</span>
+      </div>
+
+      <GoogleButton mode="login" next={nextPath} />
+
+      <p className="text-center text-xs text-(--ink-soft)">
+        If you signed up with Google, use Continue with Google.
+      </p>
 
       <div className="pt-4 border-t border-(--line) text-center text-sm text-(--ink-soft)">
         Don&apos;t have a partner account?{" "}

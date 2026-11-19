@@ -1,58 +1,53 @@
-import type { Metadata, Viewport } from "next";
-import { Fraunces, Public_Sans } from "next/font/google";
+import React from "react";
+import type { Metadata } from "next";
+
+import "./globals.css"
+import NextTopLoader from "nextjs-toploader";
+import { ThemeProvider } from "@/components/Themeprovider";
 import { Providers } from "@/components/providers";
-import { DASHBOARD_NAME } from "@/lib/constants";
-import { getAppUrl } from "@/lib/env";
-import "./globals.css";
-
-const displayFont = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["600", "700"],
-});
-
-const bodyFont = Public_Sans({
-  variable: "--font-body",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
+import { OfflineBanner } from "@/app/components/shared/offline-banner";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getAppUrl()),
-  title: {
-    default: DASHBOARD_NAME,
-    template: `%s | ${DASHBOARD_NAME}`,
+  title: "Trip Wheels Super Admin",
+  description: "Trip Wheels Marketplace Operations & Super Admin Console.",
+   openGraph: {
+    title: "Trip Wheels Super Admin",
+    description: "Trip Wheels Marketplace Operations & Super Admin Console.",
   },
-  description: "Operations console for the Trip Wheels team.",
-  robots: {
-    index: false,
-    follow: false,
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
-  },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body>
-        <Providers>{children}</Providers>
+
+    <html lang="en" suppressHydrationWarning
+      data-color-theme="CUSTOM_THEME"
+      data-layout="vertical"
+      data-boxed-layout="boxed"
+      data-sidebar-type="true"
+      data-card-shadow="false"
+      className="style-lyra"
+    >
+      <head>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+      </head>
+      <body className="font-sans antialiased" style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+        <NextTopLoader color="var(--primary)" showSpinner={false} />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+        >
+          <Providers>
+            {children}
+            <OfflineBanner />
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
+
   );
 }

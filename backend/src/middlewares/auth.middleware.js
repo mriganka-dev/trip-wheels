@@ -85,6 +85,24 @@ export const requireEmailVerified = (req, res, next) => {
   next();
 };
 
+export const requireProfileComplete = (req, res, next) => {
+  if (!req.user) {
+    return next(new ApiError(401, "Authentication required"));
+  }
+
+  if (req.user.profileComplete === false || !req.user.phone) {
+    const error = new ApiError(
+      403,
+      "PROFILE_INCOMPLETE: Please complete your profile with a phone number before proceeding",
+      ["PROFILE_INCOMPLETE"]
+    );
+    error.code = "PROFILE_INCOMPLETE";
+    return next(error);
+  }
+
+  next();
+};
+
 export const requireApprovedPublisher = asyncHandler(async (req, res, next) => {
   if (!req.user) {
     throw new ApiError(401, "Authentication required");

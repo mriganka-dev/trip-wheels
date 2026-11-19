@@ -10,5 +10,5 @@ export default function EditVehicleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <>{children}</>;
 }

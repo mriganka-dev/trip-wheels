@@ -9,15 +9,25 @@ import {
 import { normalizePhone } from "../utils/phone.js";
 
 export const getCurrentUser = async (userId) => {
-  const user = await User.findById(userId).select("-password -refreshToken");
+  const user = await User.findById(userId).select("+password -refreshToken -googleId");
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
+  const hasPassword = Boolean(user.password);
   const userObj = user.toObject();
+  delete userObj.password;
+  delete userObj.googleId;
+  delete userObj.refreshToken;
+
+  userObj.hasPassword = hasPassword;
+  userObj.profileComplete = user.profileComplete ?? true;
+  userObj.authProviders = user.authProviders?.length
+    ? user.authProviders
+    : ["password"];
 
   // Defensively attach publisher profile if Plan 3 model is registered
-  if (mongoose.models.PublisherProfile) {
+  if (mongoose.Types.ObjectId.isValid(userId) && mongoose.models.PublisherProfile) {
     const publisherProfile = await mongoose.models.PublisherProfile.findOne({
       user: userId,
     });

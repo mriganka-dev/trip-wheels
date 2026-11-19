@@ -40,7 +40,7 @@ app.use(generalLimiter);
 
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(cookieParser());
+app.use(cookieParser(env.GOOGLE_STATE_SECRET || env.ACCESS_TOKEN_SECRET));
 app.use(sanitizeNoSql);
 
 app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));

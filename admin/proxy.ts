@@ -24,6 +24,8 @@ export const config = {
     "/vehicles/:path*",
     "/schedule/:path*",
     "/verification/:path*",
+    "/complete-profile",
+    "/complete-profile/:path*",
     "/issues/:path*",
     "/reviews/:path*",
     "/reliability/:path*",

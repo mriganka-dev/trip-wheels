@@ -7,6 +7,11 @@ export const ROLES = Object.freeze({
   ADMIN: "admin",
 });
 
+export const AUTH_PROVIDERS = Object.freeze({
+  PASSWORD: "password",
+  GOOGLE: "google",
+});
+
 export const PUBLISHER_ROLES = Object.freeze([ROLES.AGENT, ROLES.INDIVIDUAL]);
 
 export const ACCOUNT_STATUS = Object.freeze({

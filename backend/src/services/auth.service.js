@@ -63,6 +63,10 @@ export const createAndSendOtp = async (email, purpose) => {
     expiresAt,
   });
 
+  if (env.NODE_ENV !== "production") {
+    console.log(`[AUTH OTP DEV] Purpose: ${purpose} | Email: ${normalizedEmail} | OTP Code: ${code}`);
+  }
+
   await sendOtpEmail(normalizedEmail, code, purpose);
   return { success: true };
 };
@@ -125,6 +129,15 @@ export const register = async ({
 
   const existingEmail = await User.findOne({ email: normalizedEmail });
   if (existingEmail) {
+    if (
+      existingEmail.authProviders?.includes("google") &&
+      !existingEmail.authProviders?.includes("password")
+    ) {
+      throw new ApiError(
+        409,
+        "An account with this email was created using Google. Please sign in with Google or reset your password."
+      );
+    }
     throw new ApiError(409, "User with this email already exists");
   }
 
@@ -139,6 +152,8 @@ export const register = async ({
     phone: normalizedPhoneNumber,
     password,
     role,
+    authProviders: ["password"],
+    profileComplete: true,
   });
 
   await createAndSendOtp(normalizedEmail, "verify_email");
@@ -164,6 +179,17 @@ export const verifyEmail = async ({ email, otp }) => {
   }
 
   return user;
+};
+
+export const createSession = async (user) => {
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+
+  user.refreshToken = refreshToken;
+  user.lastLoginAt = new Date();
+  await user.save();
+
+  return { accessToken, refreshToken };
 };
 
 export const login = async ({ emailOrPhone, password }) => {
@@ -199,12 +225,7 @@ export const login = async ({ emailOrPhone, password }) => {
     throw new ApiError(401, "Invalid email/phone or password");
   }
 
-  const accessToken = user.generateAccessToken();
-  const refreshToken = user.generateRefreshToken();
-
-  user.refreshToken = refreshToken;
-  user.lastLoginAt = new Date();
-  await user.save();
+  const { accessToken, refreshToken } = await createSession(user);
 
   const userResponse = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -289,6 +310,9 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
 
   user.password = newPassword;
   user.refreshToken = undefined;
+  if (!user.authProviders?.includes("password")) {
+    user.authProviders = [...(user.authProviders || []), "password"];
+  }
   await user.save();
 
   return true;
@@ -302,6 +326,13 @@ export const changePassword = async ({
   const user = await User.findById(userId).select("+password");
   if (!user) {
     throw new ApiError(404, "User not found");
+  }
+
+  if (!user.password) {
+    throw new ApiError(
+      400,
+      "This account does not have a password set. Please use reset password."
+    );
   }
 
   const isPasswordValid = await user.isPasswordCorrect(currentPassword);

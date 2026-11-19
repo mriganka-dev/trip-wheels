@@ -1,61 +1,98 @@
-import React from "react";
-import { clsx } from "clsx";
+import * as React from "react"
+import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
 
-export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonVariant =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "quiet"
+  | "destructive"
+  | "danger"
+  | "link"
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  isLoading?: boolean;
+const buttonVariants = cva(
+  "cn-button group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  {
+    variants: {
+      variant: {
+        default: "cn-button-variant-default bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        primary: "cn-button-variant-default bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        outline:
+          "cn-button-variant-outline border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+        secondary:
+          "cn-button-variant-secondary bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "cn-button-variant-ghost hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+        quiet:
+          "cn-button-variant-ghost hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+        destructive:
+          "cn-button-variant-destructive bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        danger:
+          "cn-button-variant-destructive bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "cn-button-variant-link text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "cn-button-size-default h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        md:
+          "cn-button-size-default h-9 gap-1.5 px-3",
+        xs: "cn-button-size-xs h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "cn-button-size-sm h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "cn-button-size-lg h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "cn-button-size-icon size-8",
+        "icon-xs":
+          "cn-button-size-icon-xs size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "cn-button-size-icon-sm size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+        "icon-lg": "cn-button-size-icon-lg size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  isLoading?: boolean
+  asChild?: boolean
+  render?: any
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant = "primary",
-      size = "md",
-      isLoading = false,
-      disabled,
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    const baseClasses =
-      "inline-flex items-center justify-center font-medium rounded transition-colors focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  isLoading = false,
+  disabled,
+  children,
+  render,
+  ...props
+}: ButtonProps) {
+  return (
+    <ButtonPrimitive
+      data-slot="button"
+      disabled={disabled || isLoading}
+      className={cn(buttonVariants({ variant: variant as any, size: size as any, className }))}
+      render={render}
+      {...(props as any)}
+    >
+      {isLoading && (
+        <span
+          className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent mr-1.5"
+          aria-hidden="true"
+        />
+      )}
+      {children}
+    </ButtonPrimitive>
+  )
+}
 
-    const variantClasses: Record<ButtonVariant, string> = {
-      primary: "bg-brand text-white hover:bg-brand-dark active:bg-brand-dark",
-      secondary: "bg-surface text-ink border border-line hover:bg-brand-tint",
-      quiet: "bg-transparent text-ink-soft hover:text-ink hover:bg-brand-tint",
-      danger: "bg-negative text-white hover:opacity-90 active:opacity-95",
-    };
-
-    const sizeClasses: Record<ButtonSize, string> = {
-      sm: "h-8 px-3 text-xs gap-1.5",
-      md: "h-10 px-4 text-sm gap-2",
-      lg: "h-11 px-5 text-base gap-2.5",
-    };
-
-    return (
-      <button
-        ref={ref}
-        disabled={disabled || isLoading}
-        className={clsx(baseClasses, variantClasses[variant], sizeClasses[size], className)}
-        {...props}
-      >
-        {isLoading && (
-          <span
-            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-1"
-            aria-hidden="true"
-          />
-        )}
-        {children}
-      </button>
-    );
-  }
-);
-
-Button.displayName = "Button";
+export { Button, buttonVariants }

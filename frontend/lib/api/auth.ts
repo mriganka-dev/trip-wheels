@@ -1,5 +1,6 @@
 import { apiClient } from "./client";
 import type {
+  CompleteProfilePayload,
   ForgotPasswordPayload,
   LoginPayload,
   LoginResponse,
@@ -66,4 +67,14 @@ export async function getCurrentUser(): Promise<User> {
     method: "GET",
   });
 }
+
+export async function completeProfile(
+  payload: CompleteProfilePayload
+): Promise<User> {
+  return apiClient<User>("/auth/complete-profile", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 

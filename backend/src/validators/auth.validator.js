@@ -65,3 +65,38 @@ export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z.string().regex(passwordRegex, passwordMessage),
 });
+
+export const googleAuthQuerySchema = z
+  .object({
+    app: z.enum(["customer", "agent"]),
+    mode: z.enum(["login", "register"]).default("login"),
+    type: z.enum(["agent", "individual"]).optional(),
+    next: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.app === "agent" && data.mode === "register") {
+        return data.type === "agent" || data.type === "individual";
+      }
+      return true;
+    },
+    {
+      message:
+        "type must be 'agent' or 'individual' when registering as agent/owner",
+      path: ["type"],
+    }
+  );
+
+export const completeProfileSchema = z.object({
+  phone: z
+    .string()
+    .trim()
+    .min(10, "Phone number must be at least 10 digits")
+    .max(15, "Phone number must not exceed 15 digits"),
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "Full name must be at least 2 characters")
+    .max(100, "Full name must not exceed 100 characters")
+    .optional(),
+});

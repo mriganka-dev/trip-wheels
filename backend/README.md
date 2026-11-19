@@ -93,6 +93,46 @@ npm run dev
 ```
 The server will start at `http://localhost:8000`.
 
+### 3.5 Google Login Setup
+
+Google login allows customers and fleet partners (agents and individuals) to sign up and sign in using "Continue with Google" alongside email and password. Super admin accounts remain password-only.
+
+#### Routes
+- `GET /api/v1/auth/google`: Starts the authorization code flow with PKCE, state token, and nonce. Accepts `app` (`customer` or `agent`), `mode` (`login` or `register`), `type` (`agent` or `individual`), and optional `next` relative path.
+- `GET /api/v1/auth/google/callback`: Receives the authorization code from Google, verifies state and nonce, verifies ID token signature, links by verified email or creates an account, and sets host-only session cookies.
+- `POST /api/v1/auth/complete-profile`: Saves the 10-digit Indian mobile number (with country code 91) and optional full name for Google accounts.
+- `GET /api/v1/users/me`: Returns the current user profile including `profileComplete`, `authProviders`, and `hasPassword`.
+
+#### Environment Variables
+Configure the following variable names in your backend `.env` file (names only, never commit secret values):
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI_CUSTOMER`
+- `GOOGLE_REDIRECT_URI_AGENT`
+- `GOOGLE_STATE_SECRET`
+
+When any of these variables is missing, Google login is gracefully turned off, and the auth routes redirect with `google_unavailable` while the server starts normally.
+
+#### Google Cloud Setup Steps
+1. Create a Google Cloud project in the Google Cloud Console.
+2. In Google Auth Platform, configure the OAuth consent screen with Audience set to External, app name "Trip Wheels", and user support email. While in Testing mode, register test user Gmail addresses under Audience.
+3. Add scopes: `openid`, `email`, and `profile`.
+4. Create an OAuth client ID of type "Web application".
+5. Add Authorized redirect URIs matching your registered callback paths:
+   - Customer callback: `http://localhost:3000/api/v1/auth/google/callback`
+   - Partner callback: `http://127.0.0.1:3001/api/v1/auth/google/callback`
+
+#### Local Development Hostnames
+Session cookies are host-only without a shared domain attribute. Run the customer website on `http://localhost:3000` and the partner dashboard on `http://127.0.0.1:3001` (or another distinct hostname). Using different hostnames prevents cookie collision and keeps partner and customer sessions completely isolated.
+
+#### One-Time Database Index Migration
+Run the index migration script once to replace the sparse phone index with a partial unique index:
+```bash
+node scripts/migratePhoneIndex.js
+```
+This allows multiple new Google users with empty phone numbers prior to completing their profile.
+
+
 ---
 
 ## 4. API Documentation

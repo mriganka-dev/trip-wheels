@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { env } from "../config/env.js";
-import { ACCOUNT_STATUS, ROLES } from "../constants.js";
+import { ACCOUNT_STATUS, AUTH_PROVIDERS, ROLES } from "../constants.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -19,12 +19,32 @@ const userSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      select: false,
+      default: undefined,
+    },
+    authProviders: {
+      type: [String],
+      enum: Object.values(AUTH_PROVIDERS),
+      default: [AUTH_PROVIDERS.PASSWORD],
+    },
+    profileComplete: {
+      type: Boolean,
+      default: true,
+    },
     phone: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
+      sparse: true,
       trim: true,
-      index: true,
+      set: (val) =>
+        val && typeof val === "string" && val.trim() !== ""
+          ? val.trim()
+          : undefined,
     },
     phoneConfirmedByAdmin: {
       type: Boolean,
@@ -41,7 +61,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
       select: false,
     },
     role: {
@@ -137,7 +157,11 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) {
+  if (this.phone === null || this.phone === "") {
+    this.phone = undefined;
+  }
+
+  if (!this.isModified("password") || !this.password) {
     return;
   }
 
@@ -145,6 +169,9 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.isPasswordCorrect = async function (candidatePassword) {
+  if (!this.password) {
+    return false;
+  }
   return await bcrypt.compare(candidatePassword, this.password);
 };
 

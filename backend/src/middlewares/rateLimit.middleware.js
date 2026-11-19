@@ -15,13 +15,13 @@ const createLimiter = ({ windowMs, max, message }) => {
 
 export const generalLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === "production" ? 100 : 5000,
   message: "Too many requests, please try again later",
 });
 
 export const authLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 15,
+  max: process.env.NODE_ENV === "production" ? 15 : 500,
   message: "Too many authentication attempts, please try again later",
 });
 

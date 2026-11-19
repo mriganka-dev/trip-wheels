@@ -1,28 +1,24 @@
-import React from "react";
-import { clsx } from "clsx";
+import * as React from "react"
+import { Input as InputPrimitive } from "@base-ui/react/input"
+import { cn } from "@/lib/utils"
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  hasError?: boolean;
+export interface InputProps extends React.ComponentProps<"input"> {
+  hasError?: boolean
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, hasError, type = "text", ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        ref={ref}
-        className={clsx(
-          "w-full h-10 px-3 py-2 bg-surface text-ink text-sm rounded border",
-          hasError
-            ? "border-negative focus:outline-negative focus:border-negative"
-            : "border-line focus:outline-brand focus:border-brand",
-          "placeholder:text-ink-soft/60 focus:outline-2 focus:outline-offset-1 disabled:opacity-50 disabled:cursor-not-allowed",
-          className
-        )}
-        {...props}
-      />
-    );
-  }
-);
+function Input({ className, type, hasError, ...props }: InputProps) {
+  return (
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        "cn-input h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        hasError && "border-destructive focus-visible:ring-destructive/30",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-Input.displayName = "Input";
+export { Input }

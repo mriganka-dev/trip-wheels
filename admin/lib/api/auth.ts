@@ -1,6 +1,7 @@
 import { apiClient, ApiError } from "./client";
 import type {
   ChangePasswordPayload,
+  CompleteProfilePayload,
   ForgotPasswordPayload,
   LoginPayload,
   LoginResponse,
@@ -65,6 +66,16 @@ export async function resetPassword(payload: ResetPasswordPayload): Promise<void
 export async function getCurrentUser(): Promise<User> {
   return apiClient<User>("/users/me");
 }
+
+export async function completeProfile(
+  payload: CompleteProfilePayload
+): Promise<User> {
+  return apiClient<User>("/auth/complete-profile", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 
 export async function getPublisherProfile(): Promise<PublisherProfile | null> {
   try {

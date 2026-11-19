@@ -2,12 +2,7 @@ import { env } from "../config/env.js";
 import * as authService from "../services/auth.service.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-
-const getCookieOptions = () => ({
-  httpOnly: true,
-  secure: env.NODE_ENV === "production",
-  sameSite: env.NODE_ENV === "production" ? "none" : "lax",
-});
+import { attachSessionCookies, getCookieOptions } from "../utils/session.js";
 
 export const register = asyncHandler(async (req, res) => {
   const user = await authService.register(req.body);
@@ -42,29 +37,19 @@ export const resendOtp = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { user, accessToken, refreshToken } = await authService.login(req.body);
 
-  const cookieOptions = getCookieOptions();
+  attachSessionCookies(res, { accessToken, refreshToken });
 
-  res
-    .status(200)
-    .cookie("accessToken", accessToken, {
-      ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
-    })
-    .cookie("refreshToken", refreshToken, {
-      ...cookieOptions,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
-    .json(
-      new ApiResponse(
-        200,
-        {
-          user,
-          accessToken,
-          refreshToken,
-        },
-        "Login successful"
-      )
-    );
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        user,
+        accessToken,
+        refreshToken,
+      },
+      "Login successful"
+    )
+  );
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -74,28 +59,18 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } =
     await authService.refreshAccessToken(incomingRefreshToken);
 
-  const cookieOptions = getCookieOptions();
+  attachSessionCookies(res, { accessToken, refreshToken });
 
-  res
-    .status(200)
-    .cookie("accessToken", accessToken, {
-      ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
-    })
-    .cookie("refreshToken", refreshToken, {
-      ...cookieOptions,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
-    .json(
-      new ApiResponse(
-        200,
-        {
-          accessToken,
-          refreshToken,
-        },
-        "Access token refreshed successfully"
-      )
-    );
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        accessToken,
+        refreshToken,
+      },
+      "Access token refreshed successfully"
+    )
+  );
 });
 
 export const logout = asyncHandler(async (req, res) => {

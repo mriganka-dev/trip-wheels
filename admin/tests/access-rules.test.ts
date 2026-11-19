@@ -52,6 +52,32 @@ describe("lib/access-rules helper", () => {
     });
   });
 
+  it("redirects users with incomplete profiles to complete-profile", () => {
+    const incompleteUser: User = {
+      ...verifiedAgentUser,
+      profileComplete: false,
+    };
+
+    expect(checkAccess("/bookings", incompleteUser, approvedProfile)).toEqual({
+      status: "redirect",
+      to: "/complete-profile",
+    });
+
+    expect(checkAccess("/verification", incompleteUser, approvedProfile)).toEqual({
+      status: "redirect",
+      to: "/complete-profile",
+    });
+
+    expect(checkAccess("/profile", incompleteUser, approvedProfile)).toEqual({
+      status: "redirect",
+      to: "/complete-profile",
+    });
+
+    expect(checkAccess("/complete-profile", incompleteUser, approvedProfile)).toEqual({
+      status: "allow",
+    });
+  });
+
   it("redirects users with unverified emails to verify-email", () => {
     const unverifiedUser: User = {
       ...verifiedAgentUser,

@@ -15,6 +15,11 @@ Trip Wheels is a self-drive vehicle rental marketplace for Northeast India (Assa
 - npm 10 or higher
 - Running Trip Wheels Backend (optional for local mock preview, required for live data)
 
+## Google Login
+
+The Continue with Google button is a plain link to the backend route (/api/v1/auth/google). No external Google script or SDK is loaded in the browser, and no new environment variables are added to the frontend. The button displays the official Google brand icon located at public/images/google-g.svg with an automatic text-only fallback if the file is missing. New Google customers are guided to the Complete your profile page (/complete-profile) to save their 10-digit mobile number before submitting booking requests.
+
+
 ## Getting Started
 
 1. Install dependencies:

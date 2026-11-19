@@ -24,6 +24,8 @@ export const config = {
     "/issues/:path*",
     "/notifications/:path*",
     "/profile/:path*",
+    "/complete-profile",
+    "/complete-profile/:path*",
   ],
 };
 

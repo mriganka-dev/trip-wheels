@@ -9,5 +9,5 @@ export default function VerificationLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <>{children}</>;
 }

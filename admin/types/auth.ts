@@ -19,6 +19,9 @@ export interface User {
     url: string;
     publicId: string;
   };
+  profileComplete?: boolean;
+  authProviders?: string[];
+  hasPassword?: boolean;
   notificationPreferences?: NotificationPreferences;
   suspendedReason?: string;
   suspendedAt?: string;
@@ -139,3 +142,9 @@ export interface ResetPasswordPayload {
   otp: string;
   newPassword: string;
 }
+
+export interface CompleteProfilePayload {
+  phone: string;
+  fullName?: string;
+}
+

@@ -87,3 +87,22 @@ export function getVehicleStatusMeta(status: string): StatusMeta {
 export function getVerificationStatusMeta(status: string): StatusMeta {
   return VERIFICATION_STATUS_CONFIG[status] || { label: status, tone: "neutral" };
 }
+
+export const OAUTH_AGENT_ERROR_MESSAGES: Record<string, string> = {
+  google_cancelled:
+    "Google sign-in was cancelled. You can try again or use your email and password.",
+  google_failed: "We could not sign you in with Google. Please try again.",
+  google_email_unverified:
+    "The email on that Google account is not verified, so it cannot be used here.",
+  account_suspended: "This account is suspended. Please contact support.",
+  wrong_app:
+    "This email belongs to a traveler account, so it cannot sign in here. Use a different email for your partner account.",
+  no_account:
+    "There is no partner account for this Google account yet. Choose Agent or Individual and create one.",
+  google_unavailable:
+    "Google sign-in is not available right now. Use your email and password.",
+};
+
+export const DEFAULT_OAUTH_AGENT_ERROR =
+  OAUTH_AGENT_ERROR_MESSAGES.google_failed;
+

@@ -492,75 +492,88 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              passwordMutation.mutate();
-            }}
-            className="space-y-4"
-          >
-            {passwordError && (
-              <div className="flex items-start gap-2 rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{passwordError}</span>
-              </div>
-            )}
-
-            {passwordMessage && (
-              <div className="flex items-start gap-2 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{passwordMessage}</span>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider font-medium text-(--ink-soft) mb-1">
-                Current password *
-              </label>
-              <Input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-medium text-(--ink-soft) mb-1">
-                  New password *
-                </label>
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="At least 8 characters"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-medium text-(--ink-soft) mb-1">
-                  Confirm new password *
-                </label>
-                <Input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat new password"
-                  required
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={passwordMutation.isPending}
-              className="bg-(--brand) hover:bg-(--brand-hover) text-white"
+          {user?.hasPassword === false ? (
+            <p className="text-sm text-(--ink-soft)">
+              You signed in with Google. To add a password, use{" "}
+              <Link
+                href="/forgot-password"
+                className="font-medium text-(--brand) hover:underline"
+              >
+                Reset password
+              </Link>
+              .
+            </p>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                passwordMutation.mutate();
+              }}
+              className="space-y-4"
             >
-              {passwordMutation.isPending ? "Updating..." : "Update password"}
-            </Button>
-          </form>
+              {passwordError && (
+                <div className="flex items-start gap-2 rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{passwordError}</span>
+                </div>
+              )}
+
+              {passwordMessage && (
+                <div className="flex items-start gap-2 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{passwordMessage}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-medium text-(--ink-soft) mb-1">
+                  Current password *
+                </label>
+                <Input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-medium text-(--ink-soft) mb-1">
+                    New password *
+                  </label>
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="At least 8 characters"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-medium text-(--ink-soft) mb-1">
+                    Confirm new password *
+                  </label>
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat new password"
+                    required
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={passwordMutation.isPending}
+                className="bg-(--brand) hover:bg-(--brand-hover) text-white"
+              >
+                {passwordMutation.isPending ? "Updating..." : "Update password"}
+              </Button>
+            </form>
+          )}
         </section>
 
         {/* Sign Out Section */}

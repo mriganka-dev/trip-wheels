@@ -12,6 +12,8 @@
   --brand-tint: #E3EEE9;
   --warning: #A8691A;
   --negative: #B3362E;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 @theme inline {

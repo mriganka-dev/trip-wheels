@@ -1,4 +1,4 @@
-const CACHE_NAME = "tw-partner-v1";
+const CACHE_NAME = "tw-partner-v2";
 const OFFLINE_URL = "/offline";
 
 const STATIC_SHELL_FILES = [
@@ -12,11 +12,10 @@ const STATIC_SHELL_FILES = [
 
 // 1. Install event: pre-cache static shell files and offline page
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_SHELL_FILES);
-    }).then(() => {
-      return self.skipWaiting();
     })
   );
 });
@@ -39,12 +38,12 @@ self.addEventListener("activate", (event) => {
 });
 
 // 3. Fetch event: Network-first for navigations with offline fallback.
-// CRITICAL PLATFORM RULE: NEVER cache API responses (/api/v1/...) because stale booking data is harmful.
+// CRITICAL PLATFORM RULE: NEVER cache API responses (/api/v1/...) or Next.js build/dev chunks.
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Strictly skip all API requests from caching
-  if (url.pathname.startsWith("/api/")) {
+  // Strictly skip all API requests and Next.js chunks from caching
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/_next/")) {
     return;
   }
 
@@ -60,12 +59,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets (scripts, styles, icons, fonts): cache-first then network
+  // Static assets (icons and images only): cache-first then network
   if (
-    url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname.endsWith(".css") ||
-    url.pathname.endsWith(".js") ||
     url.pathname.endsWith(".png") ||
     url.pathname.endsWith(".svg")
   ) {
