@@ -1,25 +1,31 @@
+"use client";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Page not found",
-  description: "The requested console page does not exist.",
+const Error = () => {
+  return (
+    <>
+      <div className="h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="text-center">
+          <Image
+            src="/images/backgrounds/404.svg"
+            alt="error"
+            className="mb-20"
+            width={500}
+            height={500}
+          />
+          <h1 className="text-foreground text-4xl mb-6">Opps!!!</h1>
+          <h6 className="text-xl text-foreground">
+            This page you are looking for could not be found.
+          </h6>
+          <Button className="mt-6 mx-auto">
+            <Link href="/">Go Back to Home</Link>
+          </Button>
+        </div>
+      </div>
+    </>
+  );
 };
 
-export default function NotFound() {
-  return (
-    <div className="min-h-screen bg-paper flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-surface border border-line rounded p-8 text-center">
-        <h1 className="text-xl font-semibold text-ink">Page not found</h1>
-        <p className="text-sm text-ink-soft mt-2 mb-6">
-          The console page you are looking for does not exist or may have been moved.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium rounded bg-brand text-white hover:bg-brand-dark transition-colors"
-        >
-          Return to Today
-        </Link>
-      </div>
-    </div>
-  );
-}
+export default Error;

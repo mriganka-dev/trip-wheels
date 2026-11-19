@@ -92,18 +92,20 @@ export const NotificationBell: React.FC = () => {
       {/* Desktop view Popover dropdown */}
       <div className="hidden sm:block">
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="relative p-2 rounded text-ink-soft hover:text-ink hover:bg-brand-tint focus-visible:outline-2 focus-visible:outline-brand cursor-pointer"
-            >
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-brand" />
-              )}
-            </button>
-          </PopoverTrigger>
+          <PopoverTrigger
+            render={
+              <button
+                type="button"
+                aria-label="Notifications"
+                className="relative p-2 rounded text-ink-soft hover:text-ink hover:bg-brand-tint focus-visible:outline-2 focus-visible:outline-brand cursor-pointer"
+              >
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-brand" />
+                )}
+              </button>
+            }
+          />
           <PopoverContent align="end" className="w-80 p-0 overflow-hidden">
             <div className="p-3 border-b border-line flex items-center justify-between bg-paper/50">
               <span className="text-xs font-semibold text-ink">Notifications</span>

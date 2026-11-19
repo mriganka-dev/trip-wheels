@@ -142,7 +142,10 @@ export const seedDemo = async () => {
       chassisNumber: "ME4HUNTER12345678",
       status: VEHICLE_STATUS.ACTIVE,
       pricing: { perDay: 900, perHour: 60, deposit: 2000, minRentalHours: 4 },
-      pickup: { mode: PICKUP_MODES.FIXED },
+      pickup: {
+        mode: PICKUP_MODES.FIXED,
+        location: { type: "Point", coordinates: [87.525, 21.629] },
+      },
       insurance: {
         policyNumber: "POL-HUNTER-001",
         expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
@@ -168,7 +171,10 @@ export const seedDemo = async () => {
       chassisNumber: "MA3SWIFT87654321",
       status: VEHICLE_STATUS.ACTIVE,
       pricing: { perDay: 1800, perHour: 120, deposit: 5000, minRentalHours: 6 },
-      pickup: { mode: PICKUP_MODES.FLEXIBLE },
+      pickup: {
+        mode: PICKUP_MODES.FLEXIBLE,
+        location: { type: "Point", coordinates: [87.5113, 21.6266] },
+      },
       insurance: {
         policyNumber: "POL-SWIFT-002",
         expiresAt: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),

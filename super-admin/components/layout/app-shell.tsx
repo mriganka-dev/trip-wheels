@@ -1,9 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { Sidebar } from "./sidebar";
-import { TopBar } from "./top-bar";
-import { MenuSheet, MenuSheetContent } from "@/components/ui/menu-sheet";
+import React from "react";
 
 export interface AppShellProps {
   title?: string;
@@ -18,49 +15,27 @@ export interface AppShellProps {
 export const AppShell: React.FC<AppShellProps> = ({
   title,
   contextLine,
-  userName,
-  unreadNotificationsCount,
-  counts,
-  onSignOut,
   children,
 }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-paper flex flex-col md:flex-row">
-      {/* Desktop fixed sidebar */}
-      <div className="hidden md:block w-64 shrink-0 fixed inset-y-0 left-0 z-30">
-        <Sidebar counts={counts} />
-      </div>
-
-      {/* Mobile sheet navigation */}
-      <MenuSheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <MenuSheetContent side="left" title="Trip Wheels Super Admin">
-          <Sidebar
-            counts={counts}
-            onNavigate={() => setMobileMenuOpen(false)}
-            className="border-none"
-          />
-        </MenuSheetContent>
-      </MenuSheet>
-
-      {/* Main content column with offset for desktop sidebar */}
-      <div className="flex-1 md:pl-64 flex flex-col min-h-screen">
-        <TopBar
-          title={title}
-          userName={userName}
-          unreadNotificationsCount={unreadNotificationsCount}
-          onOpenMobileMenu={() => setMobileMenuOpen(true)}
-          onSignOut={onSignOut}
-        />
-
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">
-          {contextLine && (
-            <p className="text-sm text-ink-soft mb-4">{contextLine}</p>
-          )}
-          {children}
-        </main>
-      </div>
+    <div className="w-full space-y-4">
+      {(title || contextLine) && (
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 pb-3 mb-2 border-b border-border">
+          <div>
+            {title && (
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                {title}
+              </h1>
+            )}
+            {contextLine && (
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                {contextLine}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+      <div className="w-full">{children}</div>
     </div>
   );
 };

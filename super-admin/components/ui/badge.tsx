@@ -1,35 +1,75 @@
-import React from "react";
-import { clsx } from "clsx";
-import type { StatusTone } from "@/lib/constants";
+import * as React from "react"
+import { mergeProps } from "@base-ui/react/merge-props"
+import { useRender } from "@base-ui/react/use-render"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  tone?: StatusTone;
-  children: React.ReactNode;
+const badgeVariants = cva(
+  "cn-badge group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!",
+  {
+    variants: {
+      variant: {
+        default: "cn-badge-variant-default bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        secondary:
+          "cn-badge-variant-secondary bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+        destructive:
+          "cn-badge-variant-destructive bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+        outline:
+          "cn-badge-variant-outline border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
+        ghost:
+          "cn-badge-variant-ghost hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
+        link: "cn-badge-variant-link text-primary underline-offset-4 hover:underline",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+const toneClasses: Record<string, string> = {
+  brand: "bg-primary/10 text-primary border-primary/20",
+  warning: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  negative: "bg-destructive/10 text-destructive border-destructive/20",
+  neutral: "bg-muted text-muted-foreground border-border",
+  positive: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  info: "bg-blue-500/10 text-blue-600 border-blue-500/20",
 }
 
-export const Badge: React.FC<BadgeProps> = ({
-  tone = "neutral",
-  className,
-  children,
-  ...props
-}) => {
-  const toneClasses: Record<StatusTone, string> = {
-    brand: "bg-brand-tint text-brand border-brand/30",
-    warning: "bg-[#FEF6E9] text-warning border-warning/30",
-    negative: "bg-[#FDF0EF] text-negative border-negative/30",
-    neutral: "bg-surface text-ink-soft border-line",
-  };
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> {
+  tone?: string
+  render?: any
+}
 
-  return (
-    <span
-      className={clsx(
-        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border select-none",
-        toneClasses[tone],
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </span>
-  );
-};
+function Badge({
+  className,
+  variant = "default",
+  tone,
+  render,
+  ...props
+}: BadgeProps) {
+  const appliedClassName = cn(
+    badgeVariants({ variant: tone ? undefined : variant }),
+    tone ? toneClasses[tone] || toneClasses.neutral : null,
+    className
+  )
+
+  return useRender({
+    defaultTagName: "span",
+    props: mergeProps<"span">(
+      {
+        className: appliedClassName,
+      },
+      props
+    ),
+    render,
+    state: {
+      slot: "badge",
+      variant,
+    },
+  })
+}
+
+export { Badge, badgeVariants }
